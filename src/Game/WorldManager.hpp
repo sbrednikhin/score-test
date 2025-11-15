@@ -5,7 +5,7 @@
 
 namespace sw
 {
-    class WorldManager : public ManagerBase
+    class WorldManager final : public ManagerBase<WorldManager>
     {
     public:
         WorldManager();

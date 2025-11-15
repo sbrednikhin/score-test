@@ -52,7 +52,7 @@ namespace sw::ecs
         virtual ~IBehaviour() = default;
 
         // Выполнить действие. Возвращает true если действие выполнено успешно
-        virtual bool Act(const World& world, Entity* entity) = 0;
+        virtual bool Act(World& world, Entity* entity) = 0;
 
         // Получить имя поведения для отладки
         virtual const char* GetName() const = 0;
@@ -62,7 +62,7 @@ namespace sw::ecs
     class SwordsmanMeleeAttack : public IBehaviour
     {
     public:
-        bool Act(const World& world, Entity* entity) override;
+        bool Act(World& world, Entity* entity) override;
         const char* GetName() const override { return "SwordsmanMeleeAttack"; }
     };
 
@@ -70,7 +70,7 @@ namespace sw::ecs
     class HunterMeleeAttack : public IBehaviour
     {
     public:
-        bool Act(const World& world, Entity* entity) override;
+        bool Act(World& world, Entity* entity) override;
         const char* GetName() const override { return "HunterMeleeAttack"; }
     };
 
@@ -78,7 +78,7 @@ namespace sw::ecs
     class HunterRangeAttack : public IBehaviour
     {
     public:
-        bool Act(const World& world, Entity* entity) override;
+        bool Act(World& world, Entity* entity) override;
         const char* GetName() const override { return "HunterRangeAttack"; }
     };
 
@@ -86,7 +86,7 @@ namespace sw::ecs
     class MoveToTarget : public IBehaviour
     {
     public:
-        bool Act(const World& world, Entity* entity) override;
+        bool Act(World& world, Entity* entity) override;
         const char* GetName() const override { return "MoveToTarget"; }
     };
 

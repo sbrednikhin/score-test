@@ -9,36 +9,36 @@
 
 namespace sw::ecs
 {
-    bool SwordsmanMeleeAttack::Act(const World& world, Entity* entity)
+    bool SwordsmanMeleeAttack::Act(World& world, Entity* entity)
     {
         // TODO: Реализовать логику ближней атаки мечника
         // Найти ближайшего врага в радиусе melee атаки
         // Нанести урон
 
         DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId() << " performing melee attack");
-        return true; // Пока возвращаем true для тестирования
+        return false; // Временно возвращаем false, чтобы дать шанс движению
     }
 
-    bool HunterMeleeAttack::Act(const World& world, Entity* entity)
+    bool HunterMeleeAttack::Act(World& world, Entity* entity)
     {
         // TODO: Реализовать логику ближней атаки охотника
         // Аналогично SwordsmanMeleeAttack, но возможно с другими характеристиками
 
         DEBUG_LOG("HunterMeleeAttack: Entity " << entity->GetId() << " performing melee attack");
-        return true; // Пока возвращаем true для тестирования
+        return false; // Временно возвращаем false, чтобы дать шанс движению
     }
 
-    bool HunterRangeAttack::Act(const World& world, Entity* entity)
+    bool HunterRangeAttack::Act(World& world, Entity* entity)
     {
         // TODO: Реализовать логику дальней атаки охотника
         // Найти цель в радиусе range атаки
         // Нанести урон на расстоянии
 
         DEBUG_LOG("HunterRangeAttack: Entity " << entity->GetId() << " performing range attack");
-        return true; // Пока возвращаем true для тестирования
+        return false; // Временно возвращаем false, чтобы дать шанс движению
     }
 
-    bool MoveToTarget::Act(const World& world, Entity* entity)
+    bool MoveToTarget::Act(World& world, Entity* entity)
     {
         // Получаем компоненты
         auto* position = entity->GetComponent<PositionComponent>();
@@ -53,6 +53,9 @@ namespace sw::ecs
         // Проверяем, достигли ли уже цели
         if (position->x == movementTarget->targetX && position->y == movementTarget->targetY)
         {
+            // Удаляем компонент цели при достижении
+            entity->RemoveComponent<MovementTargetComponent>();
+            DEBUG_LOG("Entity " << entity->GetId() << " reached target and removed MovementTargetComponent");
             return false; // Уже на месте, ничего не делаем
         }
 

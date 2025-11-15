@@ -1,4 +1,6 @@
 #include "GameLogic.hpp"
+#include "EventLogger.hpp"
+#include "ECS/EventLogSystem.hpp"
 
 namespace sw
 {
@@ -27,6 +29,10 @@ namespace sw
 
         // Обрабатываем команды для создания начальных сущностей
         ProcessCommands();
+
+        // Создаем систему событий (теперь безопасно передавать ссылку на себя)
+        auto eventSystem = std::make_unique<EventLogSystem>(*this);
+        SetExternalEventSystem(std::move(eventSystem));
 
         _isInitialized = true;
         _isRunning = true;
@@ -67,8 +73,8 @@ namespace sw
 
     bool GameLogic::IsCompleted() const
     {
-        // Для демонстрации: выполняем 5 обновлений, затем останавливаемся
-        return _isRunning && _updateCounter >= 5;
+        // Для демонстрации: выполняем 20 обновлений, затем останавливаемся
+        return _isRunning && _updateCounter >= 20;
     }
 
     void GameLogic::SetCommandSource(std::shared_ptr<ICommandSource> source)
@@ -82,6 +88,19 @@ namespace sw
             if (source->IsAvailable()) {
                 source->ProcessCommands();
             }
+        }
+    }
+
+    void GameLogic::SetExternalEventSystem(std::unique_ptr<IExternalEventSystem> eventSystem)
+    {
+        _externalEventSystem = std::move(eventSystem);
+        if (_externalEventSystem)
+        {
+            EventLogger::SetEventSystem(_externalEventSystem.get());
+        }
+        else
+        {
+            EventLogger::SetEventSystem(nullptr);
         }
     }
 }

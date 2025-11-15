@@ -12,7 +12,7 @@
 
 namespace sw
 {
-    class CommandManager : public ManagerBase
+    class CommandManager final : public ManagerBase<CommandManager>
     {
     public:
         CommandManager();

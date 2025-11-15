@@ -73,7 +73,7 @@ namespace sw
     void CommandManager::ProcessCreateMap(const sw::io::CreateMap& command)
     {
         // Получаем доступ к WorldManager и создаем карту через ECS
-        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& worldManager = WorldManager::Get();
         auto& world = worldManager.GetWorld();
 
         DEBUG_LOG("Processing CreateMap: width=" << command.width << ", height=" << command.height);
@@ -98,7 +98,7 @@ namespace sw
 
     void CommandManager::ProcessSpawnSwordsman(const sw::io::SpawnSwordsman& command)
     {
-        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& worldManager = WorldManager::Get();
         auto& world = worldManager.GetWorld();
 
         DEBUG_LOG("Processing SpawnSwordsman: id=" << command.unitId
@@ -141,7 +141,7 @@ namespace sw
 
     void CommandManager::ProcessSpawnHunter(const sw::io::SpawnHunter& command)
     {
-        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& worldManager = WorldManager::Get();
         auto& world = worldManager.GetWorld();
 
         DEBUG_LOG("Processing SpawnHunter: id=" << command.unitId
@@ -192,7 +192,7 @@ namespace sw
 
     void CommandManager::ProcessMarch(const sw::io::March& command)
     {
-        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& worldManager = WorldManager::Get();
         auto& world = worldManager.GetWorld();
 
         DEBUG_LOG("Processing March: unitId=" << command.unitId

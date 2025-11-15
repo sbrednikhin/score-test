@@ -4,11 +4,21 @@
 
 namespace sw
 {
+    template<typename Derived>
     class ManagerBase
     {
     protected:
-        ManagerBase();
-        virtual ~ManagerBase();
+        ManagerBase()
+        {
+            // При создании устанавливаем себя как текущий экземпляр
+            _instance = static_cast<Derived*>(this);
+        }
+
+        virtual ~ManagerBase()
+        {
+            // При уничтожении очищаем указатель
+            _instance = nullptr;
+        }
 
     public:
         // Запрещаем копирование и перемещение
@@ -23,21 +33,20 @@ namespace sw
         virtual void Update() = 0;
 
         // Статический интерфейс доступа
-        template<typename T>
-        static T& Get();
+        static Derived& Get()
+        {
+            static_assert(std::is_base_of_v<ManagerBase<Derived>, Derived>, "Derived must inherit from ManagerBase<Derived>");
+            return *_instance;
+        }
 
         // Проверка инициализации
         static bool IsInitialized() { return _instance != nullptr; }
 
     private:
-        static ManagerBase* _instance;
+        static Derived* _instance;
     };
 
-    // Шаблонная реализация для получения конкретного менеджера
-    template<typename T>
-    T& ManagerBase::Get()
-    {
-        static_assert(std::is_base_of_v<ManagerBase, T>, "T must inherit from ManagerBase");
-        return static_cast<T&>(*_instance);
-    }
+    // Статическая переменная для каждого типа
+    template<typename Derived>
+    Derived* ManagerBase<Derived>::_instance = nullptr;
 }

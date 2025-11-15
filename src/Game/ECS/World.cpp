@@ -2,7 +2,6 @@
 #include "Components.hpp"
 #include "MapService.hpp"
 #include "Debug.hpp"
-#include <iostream>
 #include <algorithm>
 
 namespace sw::ecs
@@ -106,8 +105,8 @@ namespace sw::ecs
         // На момент инициализации мир пуст, поэтому проверки не нужны
         _isInitialized = true;
 
-        std::cout << "World initialized with " << _entitiesStorage.size() << " entities and "
-                  << _systems.size() << " systems" << std::endl;
+        DEBUG_LOG("World initialized with " << _entitiesStorage.size() << " entities and "
+                   << _systems.size() << " systems");
     }
 
     void World::Deinitialize()

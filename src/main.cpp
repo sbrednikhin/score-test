@@ -8,6 +8,7 @@
 #include <IO/System/EventLog.hpp>
 #include <Game/GameLogic.hpp>
 #include <Game/FileCommandSource.hpp>
+#include <Game/ECS/EventLogSystem.hpp>
 #include "Debug.hpp"
 
 int main(int argc, char** argv)
@@ -41,7 +42,9 @@ int main(int argc, char** argv)
 	// Деинициализация
 	gameLogic.Deinitialize();
 
-	DEBUG_LOG("\n\nEvents:");
+	/*
+	// Закомментировано: демонстрация EventLog
+	DEBUG_LOG("\n\nEvents (demonstration):");
 
 	EventLog eventLog;
 
@@ -77,6 +80,7 @@ int main(int argc, char** argv)
 
 	eventLog.log(8, io::UnitAttacked{2, 3, 5, 0});
 	eventLog.log(8, io::UnitDied{3});
+	*/
 
 	return 0;
 }
