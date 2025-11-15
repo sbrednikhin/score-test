@@ -1,6 +1,8 @@
 #include "WorldHelper.hpp"
 #include "World.hpp"
 #include "Components.hpp"
+#include "MapService.hpp"
+#include "Debug.hpp"
 #include <algorithm>
 
 namespace sw::ecs
@@ -11,26 +13,6 @@ namespace sw::ecs
         return health && health->health > 0;
     }
 
-    Entity* WorldHelper::GetMapEntity(const World& world)
-    {
-        // Простой кэш - поскольку карта должна быть одна, проверяем только если кэш пустой или ID изменился
-        if (!_cachedMapEntity || (_cachedMapEntity && _cachedMapEntity->GetId() != _cachedMapEntityId))
-        {
-            _cachedMapEntity = nullptr;
-            _cachedMapEntityId = 0;
-
-            // Используем публичный API мира для получения сущностей с MapComponent
-            std::vector<Entity*> mapEntities = world.GetEntitiesWith<MapComponent>();
-            if (!mapEntities.empty())
-            {
-                // Берем первую найденную карту (должна быть только одна)
-                _cachedMapEntity = mapEntities[0];
-                _cachedMapEntityId = _cachedMapEntity->GetId();
-            }
-        }
-
-        return _cachedMapEntity;
-    }
 
     void WorldHelper::SortEntitiesById(std::vector<Entity*>& entities)
     {
@@ -38,5 +20,59 @@ namespace sw::ecs
             [](Entity* a, Entity* b) {
                 return a->GetId() < b->GetId();
             });
+    }
+
+    bool WorldHelper::MoveEntityTo(const World& world, Entity* entity, int32_t newX, int32_t newY)
+    {
+        if (!entity)
+        {
+            return false;
+        }
+
+        // Получаем текущую позицию
+        auto* position = entity->GetComponent<PositionComponent>();
+        if (!position)
+        {
+            return false; // Сущность не имеет позиции
+        }
+
+        // Если позиция не изменилась, ничего не делаем
+        if (position->x == newX && position->y == newY)
+        {
+            return true;
+        }
+
+        // Получаем MapService
+        auto* mapService = world.GetService<sw::ecs::MapService>();
+        if (!mapService)
+        {
+            return false;
+        }
+
+        // Освобождаем старую клетку
+        bool freed = mapService->FreeCell(position->x, position->y);
+        if (!freed)
+        {
+            DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ")");
+            // Продолжаем, так как это может быть нормально в некоторых случаях
+        }
+
+        // Занимаем новую клетку
+        bool occupied = mapService->OccupyCell(newX, newY, entity);
+        if (!occupied)
+        {
+            DEBUG_LOG("Warning: Failed to occupy cell (" << newX << "," << newY << ")");
+            // Пытаемся вернуть старую клетку
+            mapService->OccupyCell(position->x, position->y, entity);
+            return false;
+        }
+
+        // Обновляем позицию сущности
+        position->x = newX;
+        position->y = newY;
+
+        DEBUG_LOG("Entity " << entity->GetId() << " moved to (" << newX << "," << newY << ")");
+
+        return true;
     }
 }

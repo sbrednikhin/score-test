@@ -1,6 +1,7 @@
 #include "WorldManager.hpp"
 #include "ECS/DeathSystem.hpp"
 #include "ECS/BehaviourSystem.hpp"
+#include "ECS/MapService.hpp"
 
 namespace sw
 {
@@ -15,6 +16,9 @@ namespace sw
 
     void WorldManager::Initialize()
     {
+        // Регистрируем сервисы
+        _world->RegisterService(std::make_unique<ecs::MapService>(*_world));
+
         // Регистрируем системы
         _world->RegisterSystem(std::make_unique<ecs::DeathSystem>());
         _world->RegisterSystem(std::make_unique<ecs::BehaviourSystem>());

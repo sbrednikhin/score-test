@@ -2,7 +2,7 @@
 #include "World.hpp"
 #include "WorldHelper.hpp"
 #include "../ECS/Components.hpp"
-#include <iostream>
+#include "Debug.hpp"
 
 namespace sw::ecs
 {
@@ -17,12 +17,21 @@ namespace sw::ecs
             if (!WorldHelper::IsAlive(*entity)) continue;
 
             auto* behaviour = entity->GetComponent<BehaviourComponent>();
-            if (!behaviour || behaviour->type == BehaviourType::None) continue;
+            if (!behaviour || behaviour->behaviours.empty()) continue;
 
-            std::cout << "BehaviourSystem: Processing entity " << entity->GetId()
-                      << " with behaviour type: "
-                      << (behaviour->type == BehaviourType::Swordsman ? "Swordsman" : "Hunter")
-                      << std::endl;
+            // Выполняем поведения последовательно, пока первое не вернет true
+            for (const auto& behaviourImpl : behaviour->behaviours)
+            {
+                DEBUG_LOG("BehaviourSystem: Entity " << entity->GetId()
+                          << " trying " << behaviourImpl->GetName());
+
+                if (behaviourImpl->Act(world, entity))
+                {
+                    DEBUG_LOG("BehaviourSystem: Entity " << entity->GetId()
+                              << " successfully executed " << behaviourImpl->GetName());
+                    break; // Выходим после успешного выполнения
+                }
+            }
 
             // Здесь можно добавить логику поведения:
             // - Для Swordsman: атака ближайших врагов

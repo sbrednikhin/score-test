@@ -1,6 +1,8 @@
 #include "World.hpp"
+#include "Components.hpp"
+#include "MapService.hpp"
+#include "Debug.hpp"
 #include <iostream>
-#include <cassert>
 #include <algorithm>
 
 namespace sw::ecs
@@ -16,7 +18,7 @@ namespace sw::ecs
 
     Entity* World::CreateEntity()
     {
-        assert(_isInitialized && "Cannot create entities before world initialization");
+        DEBUG_ASSERT(_isInitialized && "Cannot create entities before world initialization");
 
         uint32_t id = _nextEntityId++;
         auto entity = std::make_shared<Entity>(id);
@@ -24,10 +26,16 @@ namespace sw::ecs
         return entity.get();
     }
 
-    Entity* World::GetEntity(uint32_t id)
+    Entity* World::GetEntity(uint32_t id) const
     {
         auto it = _entitiesStorage.find(id);
         return it != _entitiesStorage.end() ? it->second.get() : nullptr;
+    }
+
+    Entity* World::GetEntityByExternalId(int32_t externalId) const
+    {
+        auto it = _externalIdToEntity.find(externalId);
+        return it != _externalIdToEntity.end() ? it->second : nullptr;
     }
 
     Entity* World::BeginEntityInitialization()
@@ -42,9 +50,28 @@ namespace sw::ecs
     void World::EndEntityInitialization()
     {
         // Проверяем, что есть сущность в инициализации
-        assert(_currentInitializingEntity && "No entity is being initialized");
+        DEBUG_ASSERT(_currentInitializingEntity && "No entity is being initialized");
 
         _currentInitializingEntity->EndInitialization();
+
+        // Если у сущности есть компонент внешнего ID, добавляем в мапу для быстрого поиска
+        auto* externalId = _currentInitializingEntity->GetComponent<ExternalIdComponent>();
+        if (externalId)
+        {
+            _externalIdToEntity[externalId->externalId] = _currentInitializingEntity;
+        }
+
+        // Если у сущности есть компонент позиции, занимаем соответствующую клетку
+        auto* position = _currentInitializingEntity->GetComponent<PositionComponent>();
+        if (position)
+        {
+            auto* mapService = GetService<MapService>();
+            if (mapService)
+            {
+                mapService->OccupyCell(position->x, position->y, _currentInitializingEntity);
+            }
+        }
+
         _currentInitializingEntity = nullptr; // Очищаем указатель
     }
 
@@ -69,6 +96,11 @@ namespace sw::ecs
         _systems.push_back(std::move(system));
     }
 
+    void World::RegisterService(std::unique_ptr<ServiceBase> service)
+    {
+        _services.push_back(std::move(service));
+    }
+
     void World::Initialize()
     {
         // На момент инициализации мир пуст, поэтому проверки не нужны
@@ -87,7 +119,9 @@ namespace sw::ecs
         }
 
         _entitiesStorage.clear();
+        _externalIdToEntity.clear();
         _systems.clear();
+        _services.clear();
         _isInitialized = false;
     }
 

@@ -1,5 +1,5 @@
 #include "Entity.hpp"
-#include <cassert>
+#include "Debug.hpp"
 
 namespace sw::ecs
 {
@@ -12,18 +12,18 @@ namespace sw::ecs
     Entity::~Entity()
     {
         // Сущность должна быть properly deinitialized через мир
-        assert(_state == EntityState::Destroyed || _state == EntityState::Uninitialized);
+        DEBUG_ASSERT(_state == EntityState::Destroyed || _state == EntityState::Uninitialized);
     }
 
     void Entity::BeginInitialization()
     {
-        assert(_state == EntityState::Uninitialized);
+        DEBUG_ASSERT(_state == EntityState::Uninitialized);
         _state = EntityState::Initializing;
     }
 
     void Entity::EndInitialization()
     {
-        assert(_state == EntityState::Initializing);
+        DEBUG_ASSERT(_state == EntityState::Initializing);
         _state = EntityState::Valid;
     }
 
@@ -37,13 +37,13 @@ namespace sw::ecs
 
     void Entity::MarkForDestruction()
     {
-        assert(_state == EntityState::Valid);
+        DEBUG_ASSERT(_state == EntityState::Valid);
         _state = EntityState::MarkedForDestruction;
     }
 
     void Entity::Destroy()
     {
-        assert(_state == EntityState::MarkedForDestruction);
+        DEBUG_ASSERT(_state == EntityState::MarkedForDestruction);
 
         // Финальная очистка
         Deinitialize();

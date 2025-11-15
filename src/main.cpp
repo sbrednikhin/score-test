@@ -8,7 +8,7 @@
 #include <IO/System/EventLog.hpp>
 #include <Game/GameLogic.hpp>
 #include <Game/FileCommandSource.hpp>
-#include <iostream>
+#include "Debug.hpp"
 
 int main(int argc, char** argv)
 {
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	// Деинициализация
 	gameLogic.Deinitialize();
 
-	std::cout << "\n\nEvents:\n";
+	DEBUG_LOG("\n\nEvents:");
 
 	EventLog eventLog;
 

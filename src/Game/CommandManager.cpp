@@ -1,7 +1,8 @@
 #include "CommandManager.hpp"
 #include "WorldManager.hpp"
 #include "ECS/Components.hpp"
-#include <iostream>
+#include "ECS/MapService.hpp"
+#include "Debug.hpp"
 #include <cstring>
 
 namespace sw
@@ -54,7 +55,7 @@ namespace sw
         if (command)
         {
             // Временное логгирование для отладки
-            std::cout << command->GetTypeName() << " command added (ID: " << command->GetTypeId() << ")" << std::endl;
+            DEBUG_LOG(command->GetTypeName() << " command added (ID: " << command->GetTypeId() << ")");
             _commands.push_back(command);
         }
     }
@@ -75,7 +76,7 @@ namespace sw
         auto& worldManager = ManagerBase::Get<WorldManager>();
         auto& world = worldManager.GetWorld();
 
-        std::cout << "Processing CreateMap: width=" << command.width << ", height=" << command.height << std::endl;
+        DEBUG_LOG("Processing CreateMap: width=" << command.width << ", height=" << command.height);
 
         // Создаем и инициализируем сущность с компонентом карты
         auto mapEntity = world.BeginEntityInitialization();
@@ -86,33 +87,140 @@ namespace sw
         // Завершаем инициализацию сущности
         world.EndEntityInitialization();
 
-        std::cout << "Created map entity with ID: " << mapEntity->GetId() << std::endl;
+        // Регистрируем сущность карты в сервисе
+        if (auto* mapService = world.GetService<ecs::MapService>())
+        {
+            mapService->SetMapEntity(mapEntity);
+        }
+
+        DEBUG_LOG("Created map entity with ID: " << mapEntity->GetId());
     }
 
     void CommandManager::ProcessSpawnSwordsman(const sw::io::SpawnSwordsman& command)
     {
-        std::cout << "Processing SpawnSwordsman: id=" << command.unitId
-                  << ", pos=(" << command.x << "," << command.y << ")"
-                  << ", hp=" << command.hp << ", strength=" << command.strength << std::endl;
+        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& world = worldManager.GetWorld();
 
-        // Здесь должна быть логика создания мечника
+        DEBUG_LOG("Processing SpawnSwordsman: id=" << command.unitId
+                   << ", pos=(" << command.x << "," << command.y << ")"
+                   << ", hp=" << command.hp << ", strength=" << command.strength);
+
+        // Создаем сущность мечника
+        auto swordsmanEntity = world.BeginEntityInitialization();
+
+        // Добавляем компоненты
+        auto& position = swordsmanEntity->AddComponent<sw::ecs::PositionComponent>();
+        position.x = command.x;
+        position.y = command.y;
+
+        auto& health = swordsmanEntity->AddComponent<sw::ecs::HealthComponent>();
+        health.health = command.hp;
+
+        auto& strength = swordsmanEntity->AddComponent<sw::ecs::StrengthComponent>();
+        strength.strength = command.strength;
+
+        swordsmanEntity->AddComponent<sw::ecs::ExternalIdComponent>(command.unitId);
+
+        auto& movementTarget = swordsmanEntity->AddComponent<sw::ecs::MovementTargetComponent>();
+        movementTarget.targetX = command.x;
+        movementTarget.targetY = command.y;
+
+        auto& velocity = swordsmanEntity->AddComponent<sw::ecs::VelocityComponent>();
+        // speed по умолчанию = 1
+
+        // Добавляем поведения (в порядке приоритета)
+        auto& behaviour = swordsmanEntity->AddComponent<sw::ecs::BehaviourComponent>();
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::SwordsmanMeleeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::MoveToTarget>());
+
+        // Завершаем инициализацию (автоматически занимает клетку на карте)
+        world.EndEntityInitialization();
+
+        DEBUG_LOG("Created swordsman entity with ID: " << swordsmanEntity->GetId());
     }
 
     void CommandManager::ProcessSpawnHunter(const sw::io::SpawnHunter& command)
     {
-        std::cout << "Processing SpawnHunter: id=" << command.unitId
-                  << ", pos=(" << command.x << "," << command.y << ")"
-                  << ", hp=" << command.hp << ", agility=" << command.agility
-                  << ", strength=" << command.strength << ", range=" << command.range << std::endl;
+        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& world = worldManager.GetWorld();
 
-        // Здесь должна быть логика создания охотника
+        DEBUG_LOG("Processing SpawnHunter: id=" << command.unitId
+                   << ", pos=(" << command.x << "," << command.y << ")"
+                   << ", hp=" << command.hp << ", agility=" << command.agility
+                   << ", strength=" << command.strength << ", range=" << command.range);
+
+        // Создаем сущность охотника
+        auto hunterEntity = world.BeginEntityInitialization();
+
+        // Добавляем компоненты
+        auto& position = hunterEntity->AddComponent<sw::ecs::PositionComponent>();
+        position.x = command.x;
+        position.y = command.y;
+
+        auto& health = hunterEntity->AddComponent<sw::ecs::HealthComponent>();
+        health.health = command.hp;
+
+        auto& strength = hunterEntity->AddComponent<sw::ecs::StrengthComponent>();
+        strength.strength = command.strength;
+
+        auto& agility = hunterEntity->AddComponent<sw::ecs::AgilityComponent>();
+        agility.agility = command.agility;
+
+        auto& range = hunterEntity->AddComponent<sw::ecs::RangeComponent>();
+        range.range = command.range;
+
+        hunterEntity->AddComponent<sw::ecs::ExternalIdComponent>(command.unitId);
+
+        auto& movementTarget = hunterEntity->AddComponent<sw::ecs::MovementTargetComponent>();
+        movementTarget.targetX = command.x;
+        movementTarget.targetY = command.y;
+
+        auto& velocity = hunterEntity->AddComponent<sw::ecs::VelocityComponent>();
+        // speed по умолчанию = 1
+
+        // Добавляем поведения (в порядке приоритета: дальняя атака, ближняя атака, движение)
+        auto& behaviour = hunterEntity->AddComponent<sw::ecs::BehaviourComponent>();
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::HunterRangeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::HunterMeleeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::MoveToTarget>());
+
+        // Завершаем инициализацию (автоматически занимает клетку на карте)
+        world.EndEntityInitialization();
+
+        DEBUG_LOG("Created hunter entity with ID: " << hunterEntity->GetId());
     }
 
     void CommandManager::ProcessMarch(const sw::io::March& command)
     {
-        std::cout << "Processing March: unitId=" << command.unitId
-                  << ", target=(" << command.targetX << "," << command.targetY << ")" << std::endl;
+        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& world = worldManager.GetWorld();
 
-        // Здесь должна быть логика перемещения юнита
+        DEBUG_LOG("Processing March: unitId=" << command.unitId
+                   << ", target=(" << command.targetX << "," << command.targetY << ")");
+
+        // Находим сущность по externalId
+        sw::ecs::Entity* targetEntity = world.GetEntityByExternalId(command.unitId);
+
+        if (!targetEntity)
+        {
+            DEBUG_LOG("Warning: Entity with unitId " << command.unitId << " not found");
+            return;
+        }
+
+        // Добавляем или обновляем MovementTargetComponent
+        auto* movementTarget = targetEntity->GetComponent<sw::ecs::MovementTargetComponent>();
+        if (!movementTarget)
+        {
+            auto& newMovementTarget = targetEntity->AddComponent<sw::ecs::MovementTargetComponent>();
+            newMovementTarget.targetX = command.targetX;
+            newMovementTarget.targetY = command.targetY;
+        }
+        else
+        {
+            movementTarget->targetX = command.targetX;
+            movementTarget->targetY = command.targetY;
+        }
+
+        DEBUG_LOG("Set movement target for entity " << targetEntity->GetId());
     }
 }

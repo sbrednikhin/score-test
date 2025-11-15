@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <utility>
+#include <type_traits>
 
 namespace sw::ecs
 {
@@ -16,7 +17,8 @@ namespace sw::ecs
         ~World();
 
         // Управление сущностями
-        Entity* GetEntity(uint32_t id);
+        Entity* GetEntity(uint32_t id) const;
+        Entity* GetEntityByExternalId(int32_t externalId) const;
         void MarkEntityForDestruction(uint32_t id);
 
         // Управление инициализацией сущностей
@@ -54,6 +56,24 @@ namespace sw::ecs
         // Регистрация систем
         void RegisterSystem(std::unique_ptr<ISystem> system);
 
+        // Регистрация сервисов
+        void RegisterService(std::unique_ptr<ServiceBase> service);
+
+        // Доступ к сервисам
+        template<typename T>
+        T* GetService() const
+        {
+            static_assert(std::is_base_of_v<ServiceBase, T>, "T must inherit from ServiceBase");
+            for (const auto& service : _services)
+            {
+                if (auto* casted = dynamic_cast<T*>(service.get()))
+                {
+                    return casted;
+                }
+            }
+            return nullptr;
+        }
+
         // Управление жизненным циклом
         void Initialize();
         void Deinitialize();
@@ -63,8 +83,14 @@ namespace sw::ecs
         uint32_t _nextEntityId = 1;
         std::unordered_map<uint32_t, std::shared_ptr<Entity>> _entitiesStorage;
 
+        // Мапа для быстрого поиска по external ID
+        std::unordered_map<int32_t, Entity*> _externalIdToEntity;
+
         // Системы
         std::vector<std::unique_ptr<ISystem>> _systems;
+
+        // Сервисы
+        std::vector<std::unique_ptr<ServiceBase>> _services;
 
         // Текущая инициализируемая сущность
         Entity* _currentInitializingEntity = nullptr;

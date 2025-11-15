@@ -2,7 +2,7 @@
 #include "WorldHelper.hpp"
 #include "World.hpp"
 #include "../ECS/Components.hpp"
-#include <iostream>
+#include "Debug.hpp"
 
 namespace sw::ecs
 {
@@ -16,7 +16,7 @@ namespace sw::ecs
             // Проверяем, мертва ли сущность и не помечена ли уже на уничтожение
             if (!WorldHelper::IsAlive(*entity) && !entity->IsMarkedForDestruction())
             {
-                std::cout << "DeathSystem: Marking entity " << entity->GetId() << " for destruction" << std::endl;
+                DEBUG_LOG("DeathSystem: Marking entity " << entity->GetId() << " for destruction");
 
                 // Помечаем сущность на уничтожение
                 world.MarkEntityForDestruction(entity->GetId());

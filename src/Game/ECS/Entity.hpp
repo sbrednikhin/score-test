@@ -46,7 +46,7 @@ namespace sw::ecs
             auto typeIndex = std::type_index(typeid(T));
 
             // Устанавливаем бит в маске
-            _componentMask[static_cast<size_t>(T{}.GetType())] = true;
+            _componentMask[static_cast<size_t>(component->GetType())] = true;
 
             T* ptr = component.get();
             _components[typeIndex] = std::move(component);

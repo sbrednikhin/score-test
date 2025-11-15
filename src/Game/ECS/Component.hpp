@@ -13,6 +13,10 @@ namespace sw::ecs
         Health,
         Behaviour,
         Map,
+        Agility,
+        Range,
+        ExternalId,
+        Velocity,
 
         // Служебное значение - количество компонентов
         COUNT

@@ -4,9 +4,13 @@
 #include <map>
 #include <utility>
 #include <memory>
+#include <vector>
 
 namespace sw::ecs
 {
+    // Forward declarations
+    class Entity;
+    class World;
     // Компонент позиции
     struct PositionComponent : Component
     {
@@ -41,17 +45,55 @@ namespace sw::ecs
         ComponentType GetType() const override { return ComponentType::Health; }
     };
 
-    // Компонент поведения
-    enum class BehaviourType
+    // Интерфейс поведения
+    class IBehaviour
     {
-        None,
-        Swordsman,
-        Hunter
+    public:
+        virtual ~IBehaviour() = default;
+
+        // Выполнить действие. Возвращает true если действие выполнено успешно
+        virtual bool Act(const World& world, Entity* entity) = 0;
+
+        // Получить имя поведения для отладки
+        virtual const char* GetName() const = 0;
     };
 
+    // Поведение ближней атаки мечника
+    class SwordsmanMeleeAttack : public IBehaviour
+    {
+    public:
+        bool Act(const World& world, Entity* entity) override;
+        const char* GetName() const override { return "SwordsmanMeleeAttack"; }
+    };
+
+    // Поведение ближней атаки охотника
+    class HunterMeleeAttack : public IBehaviour
+    {
+    public:
+        bool Act(const World& world, Entity* entity) override;
+        const char* GetName() const override { return "HunterMeleeAttack"; }
+    };
+
+    // Поведение дальней атаки охотника
+    class HunterRangeAttack : public IBehaviour
+    {
+    public:
+        bool Act(const World& world, Entity* entity) override;
+        const char* GetName() const override { return "HunterRangeAttack"; }
+    };
+
+    // Поведение движения к цели
+    class MoveToTarget : public IBehaviour
+    {
+    public:
+        bool Act(const World& world, Entity* entity) override;
+        const char* GetName() const override { return "MoveToTarget"; }
+    };
+
+    // Компонент поведения
     struct BehaviourComponent : Component
     {
-        BehaviourType type = BehaviourType::None;
+        std::vector<std::unique_ptr<IBehaviour>> behaviours;
 
         ComponentType GetType() const override { return ComponentType::Behaviour; }
     };
@@ -62,15 +104,48 @@ namespace sw::ecs
         int32_t width = 0;
         int32_t height = 0;
 
-        // Sparse матрица состояний ячеек: key=(x,y), value={состояние, слабая ссылка на сущность}
+        // Sparse матрица состояний ячеек: key=(x,y), value={id сущности}
         struct CellData
         {
-            int32_t state = 0; // 0-пусто, 1-занято
-            std::weak_ptr<Entity> entity;
+            uint32_t entityId = 0; // 0-свободно, иначе ID сущности
         };
         std::map<std::pair<int32_t, int32_t>, CellData> cells;
 
         ComponentType GetType() const override { return ComponentType::Map; }
+    };
+
+    // Компонент ловкости
+    struct AgilityComponent : Component
+    {
+        int32_t agility = 0;
+
+        ComponentType GetType() const override { return ComponentType::Agility; }
+    };
+
+    // Компонент дальности
+    struct RangeComponent : Component
+    {
+        int32_t range = 0;
+
+        ComponentType GetType() const override { return ComponentType::Range; }
+    };
+
+    // Компонент внешнего ID (ID юнита из команды)
+    struct ExternalIdComponent : Component
+    {
+        explicit ExternalIdComponent(int32_t id) : externalId(id) {}
+
+        const int32_t externalId;
+
+        ComponentType GetType() const override { return ComponentType::ExternalId; }
+    };
+
+    // Компонент скорости передвижения
+    struct VelocityComponent : Component
+    {
+        int32_t speed = 1; // Скорость передвижения (по умолчанию 1)
+
+        ComponentType GetType() const override { return ComponentType::Velocity; }
     };
 }
 
