@@ -121,9 +121,6 @@ namespace sw
 
         swordsmanEntity->AddComponent<sw::ecs::ExternalIdComponent>(command.unitId);
 
-        auto& movementTarget = swordsmanEntity->AddComponent<sw::ecs::MovementTargetComponent>();
-        movementTarget.targetX = command.x;
-        movementTarget.targetY = command.y;
 
         auto& velocity = swordsmanEntity->AddComponent<sw::ecs::VelocityComponent>();
         // speed по умолчанию = 1
@@ -171,9 +168,6 @@ namespace sw
 
         hunterEntity->AddComponent<sw::ecs::ExternalIdComponent>(command.unitId);
 
-        auto& movementTarget = hunterEntity->AddComponent<sw::ecs::MovementTargetComponent>();
-        movementTarget.targetX = command.x;
-        movementTarget.targetY = command.y;
 
         auto& velocity = hunterEntity->AddComponent<sw::ecs::VelocityComponent>();
         // speed по умолчанию = 1
