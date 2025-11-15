@@ -58,28 +58,21 @@ namespace sw::ecs
         virtual const char* GetName() const = 0;
     };
 
-    // Поведение ближней атаки мечника
-    class SwordsmanMeleeAttack : public IBehaviour
+    // Поведение ближней атаки
+    class MeleeAttack : public IBehaviour
     {
     public:
         bool Act(World& world, Entity* entity) override;
-        const char* GetName() const override { return "SwordsmanMeleeAttack"; }
+        const char* GetName() const override { return "MeleeAttack"; }
     };
 
-    // Поведение ближней атаки охотника
-    class HunterMeleeAttack : public IBehaviour
-    {
-    public:
-        bool Act(World& world, Entity* entity) override;
-        const char* GetName() const override { return "HunterMeleeAttack"; }
-    };
 
-    // Поведение дальней атаки охотника
-    class HunterRangeAttack : public IBehaviour
+    // Поведение дальней атаки
+    class RangeAttack : public IBehaviour
     {
     public:
         bool Act(World& world, Entity* entity) override;
-        const char* GetName() const override { return "HunterRangeAttack"; }
+        const char* GetName() const override { return "RangeAttack"; }
     };
 
     // Поведение движения к цели

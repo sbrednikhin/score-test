@@ -130,7 +130,7 @@ namespace sw
 
         // Добавляем поведения (в порядке приоритета)
         auto& behaviour = swordsmanEntity->AddComponent<sw::ecs::BehaviourComponent>();
-        behaviour.behaviours.push_back(std::make_unique<sw::ecs::SwordsmanMeleeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::MeleeAttack>());
         behaviour.behaviours.push_back(std::make_unique<sw::ecs::MoveToTarget>());
 
         // Завершаем инициализацию (автоматически занимает клетку на карте)
@@ -180,8 +180,8 @@ namespace sw
 
         // Добавляем поведения (в порядке приоритета: дальняя атака, ближняя атака, движение)
         auto& behaviour = hunterEntity->AddComponent<sw::ecs::BehaviourComponent>();
-        behaviour.behaviours.push_back(std::make_unique<sw::ecs::HunterRangeAttack>());
-        behaviour.behaviours.push_back(std::make_unique<sw::ecs::HunterMeleeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::RangeAttack>());
+        behaviour.behaviours.push_back(std::make_unique<sw::ecs::MeleeAttack>());
         behaviour.behaviours.push_back(std::make_unique<sw::ecs::MoveToTarget>());
 
         // Завершаем инициализацию (автоматически занимает клетку на карте)

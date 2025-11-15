@@ -11,7 +11,7 @@
 
 namespace sw::ecs
 {
-    bool SwordsmanMeleeAttack::Act(World& world, Entity* entity)
+    bool MeleeAttack::Act(World& world, Entity* entity)
     {
         // Получаем позицию и силу атаки текущего юнита
         auto* position = entity->GetComponent<PositionComponent>();
@@ -84,16 +84,8 @@ namespace sw::ecs
         return true; // Атака удалась
     }
 
-    bool HunterMeleeAttack::Act(World& world, Entity* entity)
-    {
-        // TODO: Реализовать логику ближней атаки охотника
-        // Аналогично SwordsmanMeleeAttack, но возможно с другими характеристиками
 
-        DEBUG_LOG("HunterMeleeAttack: Entity " << entity->GetId() << " performing melee attack");
-        return false; // Пока возвращаем false
-    }
-
-    bool HunterRangeAttack::Act(World& world, Entity* entity)
+    bool RangeAttack::Act(World& world, Entity* entity)
     {
         // TODO: Реализовать логику дальней атаки охотника
         // Найти цель в радиусе range атаки
