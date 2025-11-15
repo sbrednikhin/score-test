@@ -4,10 +4,11 @@
 #include <IO/System/CommandParser.hpp>
 #include <fstream>
 #include <string>
+#include <memory>
 
 namespace sw
 {
-    class FileCommandSource : public ICommandSource
+    class FileCommandSource : public ICommandSource, public std::enable_shared_from_this<FileCommandSource>
     {
     public:
     FileCommandSource(const std::string& filename);

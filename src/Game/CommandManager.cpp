@@ -1,5 +1,6 @@
 #include "CommandManager.hpp"
-#include "MapManager.hpp"
+#include "WorldManager.hpp"
+#include "ECS/Components.hpp"
 #include <iostream>
 #include <cstring>
 
@@ -25,10 +26,9 @@ namespace sw
 
     void CommandManager::Update()
     {
-        // Обрабатываем все команды из очереди
+        // Сначала проходим по всем командам и обрабатываем их
         for (const auto& command : _commands)
         {
-            // Определяем тип команды по имени и вызываем соответствующий обработчик
             const char* commandName = command->GetTypeName();
 
             if (strcmp(commandName, sw::io::CreateMap::TypeName) == 0) {
@@ -45,7 +45,7 @@ namespace sw
             }
         }
 
-        // Очищаем очередь после обработки
+        // После обработки всех команд очищаем очередь
         ClearCommands();
     }
 
@@ -71,12 +71,22 @@ namespace sw
 
     void CommandManager::ProcessCreateMap(const sw::io::CreateMap& command)
     {
-        // Получаем доступ к MapManager и создаем карту
-        auto& mapManager = ManagerBase::Get<MapManager>();
+        // Получаем доступ к WorldManager и создаем карту через ECS
+        auto& worldManager = ManagerBase::Get<WorldManager>();
+        auto& world = worldManager.GetWorld();
+
         std::cout << "Processing CreateMap: width=" << command.width << ", height=" << command.height << std::endl;
 
-        // Здесь должна быть логика создания карты в MapManager
-        // Пока просто выводим информацию
+        // Создаем и инициализируем сущность с компонентом карты
+        auto mapEntity = world.BeginEntityInitialization();
+        auto& mapComponent = mapEntity->AddComponent<sw::ecs::MapComponent>();
+        mapComponent.width = command.width;
+        mapComponent.height = command.height;
+
+        // Завершаем инициализацию сущности
+        world.EndEntityInitialization();
+
+        std::cout << "Created map entity with ID: " << mapEntity->GetId() << std::endl;
     }
 
     void CommandManager::ProcessSpawnSwordsman(const sw::io::SpawnSwordsman& command)

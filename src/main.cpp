@@ -19,17 +19,17 @@ int main(int argc, char** argv)
 		throw std::runtime_error("Error: No file specified in command line argument");
 	}
 
+    // Настройка источника команд
+    auto commandSource = std::make_shared<FileCommandSource>(argv[1]);
+    commandSource->Initialize();
+    if (!commandSource->IsAvailable()) {
+    	throw std::runtime_error("Error: Cannot initialize command source for file - " + std::string(argv[1]));
+    }
+
 	// Инициализация игровой логики
 	GameLogic gameLogic;
+    gameLogic.SetCommandSource(commandSource);
 	gameLogic.Initialize();
-
-	// Настройка источника команд
-	auto commandSource = std::make_unique<FileCommandSource>(argv[1]);
-	commandSource->Initialize();
-	if (!commandSource->IsAvailable()) {
-		throw std::runtime_error("Error: Cannot initialize command source for file - " + std::string(argv[1]));
-	}
-	gameLogic.SetCommandSource(std::move(commandSource));
 
 	// Игровой цикл с обработкой команд
 	while (!gameLogic.IsCompleted())

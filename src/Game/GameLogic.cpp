@@ -18,12 +18,15 @@ namespace sw
         if (_isInitialized) return;
 
         // Создаем менеджеры
-        _mapManager = std::make_unique<MapManager>();
+        _worldManager = std::make_unique<WorldManager>();
         _commandManager = std::make_unique<CommandManager>();
 
         // Инициализируем менеджеры
-        _mapManager->Initialize();
+        _worldManager->Initialize();  // Сначала инициализируем мир (без сущностей)
         _commandManager->Initialize();
+
+        // Обрабатываем команды для создания начальных сущностей
+        ProcessCommands();
 
         _isInitialized = true;
         _isRunning = true;
@@ -38,11 +41,11 @@ namespace sw
 
         // Деинициализируем менеджеры
         if (_commandManager) _commandManager->Deinitialize();
-        if (_mapManager) _mapManager->Deinitialize();
+        if (_worldManager) _worldManager->Deinitialize();
 
         // Уничтожаем менеджеры
         _commandManager.reset();
-        _mapManager.reset();
+        _worldManager.reset();
 
         _isInitialized = false;
     }
@@ -59,7 +62,7 @@ namespace sw
 
         // Обновляем менеджеры в правильном порядке
         if (_commandManager) _commandManager->Update();  // Обрабатываем команды
-        if (_mapManager) _mapManager->Update();          // Обновляем карту
+        if (_worldManager) _worldManager->Update();      // Обновляем мир (системы ECS)
     }
 
     bool GameLogic::IsCompleted() const
@@ -68,15 +71,17 @@ namespace sw
         return _isRunning && _updateCounter >= 5;
     }
 
-    void GameLogic::SetCommandSource(std::unique_ptr<ICommandSource> source)
+    void GameLogic::SetCommandSource(std::shared_ptr<ICommandSource> source)
     {
-        _commandSource = std::move(source);
+        _commandSource = source;
     }
 
     void GameLogic::ProcessCommands()
     {
-        if (_commandSource && _commandSource->IsAvailable()) {
-            _commandSource->ProcessCommands();
+        if (auto source = _commandSource.lock()) {
+            if (source->IsAvailable()) {
+                source->ProcessCommands();
+            }
         }
     }
 }
