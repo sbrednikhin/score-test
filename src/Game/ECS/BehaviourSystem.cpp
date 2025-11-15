@@ -13,13 +13,18 @@ namespace sw::ecs
 
         for (auto* entity : entities)
         {
-            // Проверяем, жива ли сущность
-            if (!WorldHelper::IsAlive(*entity)) continue;
-
             auto* behaviour = entity->GetComponent<BehaviourComponent>();
             if (!behaviour || behaviour->behaviours.empty()) continue;
 
+            // Проверяем, жива ли сущность
+            if (!WorldHelper::IsAlive(*entity))
+            {
+                behaviour->is_active = false;
+                continue;
+            }
+
             // Выполняем поведения последовательно, пока первое не вернет true
+            bool anyBehaviourExecuted = false;
             for (const auto& behaviourImpl : behaviour->behaviours)
             {
                 DEBUG_LOG("BehaviourSystem: Entity " << entity->GetId()
@@ -29,14 +34,18 @@ namespace sw::ecs
                 {
                     DEBUG_LOG("BehaviourSystem: Entity " << entity->GetId()
                               << " successfully executed " << behaviourImpl->GetName());
+                    anyBehaviourExecuted = true;
                     break; // Выходим после успешного выполнения
                 }
             }
 
-            // Здесь можно добавить логику поведения:
-            // - Для Swordsman: атака ближайших врагов
-            // - Для Hunter: стрельба издалека
-            // - Перемещение к цели и т.д.
+            // Если ни одно поведение не сработало, деактивируем сущность
+            if (!anyBehaviourExecuted)
+            {
+                behaviour->is_active = false;
+                DEBUG_LOG("BehaviourSystem: Entity " << entity->GetId()
+                          << " has no active behaviours, deactivating");
+            }
         }
     }
 }

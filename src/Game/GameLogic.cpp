@@ -1,9 +1,11 @@
 #include "GameLogic.hpp"
 #include "EventLogger.hpp"
 #include "ECS/EventLogSystem.hpp"
+#include "ECS/WorldHelper.hpp"
 
 namespace sw
 {
+    using namespace ecs;
     GameLogic::GameLogic()
         : _isInitialized(false)
         , _isRunning(false)
@@ -73,8 +75,16 @@ namespace sw
 
     bool GameLogic::IsCompleted() const
     {
-        // Для демонстрации: выполняем 20 обновлений, затем останавливаемся
-        return _isRunning && _updateCounter >= 20;
+        if (!_isRunning) return true;
+
+        // Если есть активные сущности, продолжаем симуляцию
+        if (_worldManager)
+        {
+            return !WorldHelper::HasActiveEntities(_worldManager->GetWorld());
+        }
+
+        // Если нет менеджера мира, завершаемся
+        return true;
     }
 
     void GameLogic::SetCommandSource(std::shared_ptr<ICommandSource> source)

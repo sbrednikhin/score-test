@@ -75,4 +75,22 @@ namespace sw::ecs
 
         return true;
     }
+
+    bool WorldHelper::HasActiveEntities(const World& world)
+    {
+        // Получаем все сущности с BehaviourComponent
+        std::vector<Entity*> entities = world.GetEntitiesWith<BehaviourComponent>();
+
+        // Проверяем, есть ли среди них активные
+        for (auto* entity : entities)
+        {
+            auto* behaviour = entity->GetComponent<BehaviourComponent>();
+            if (behaviour && behaviour->is_active)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

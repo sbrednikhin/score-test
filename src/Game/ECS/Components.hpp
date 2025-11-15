@@ -94,6 +94,7 @@ namespace sw::ecs
     struct BehaviourComponent : Component
     {
         std::vector<std::unique_ptr<IBehaviour>> behaviours;
+        bool is_active = true;
 
         ComponentType GetType() const override { return ComponentType::Behaviour; }
     };
