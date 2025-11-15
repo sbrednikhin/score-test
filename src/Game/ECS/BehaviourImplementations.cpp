@@ -6,17 +6,82 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <random>
+#include <vector>
 
 namespace sw::ecs
 {
     bool SwordsmanMeleeAttack::Act(World& world, Entity* entity)
     {
-        // TODO: Реализовать логику ближней атаки мечника
-        // Найти ближайшего врага в радиусе melee атаки
-        // Нанести урон
+        // Получаем позицию и силу атаки текущего юнита
+        auto* position = entity->GetComponent<PositionComponent>();
+        auto* strength = entity->GetComponent<StrengthComponent>();
 
-        DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId() << " performing melee attack");
-        return false; // Временно возвращаем false, чтобы дать шанс движению
+        if (!position || !strength)
+        {
+            return false; // Не можем атаковать без позиции или силы
+        }
+
+        // Находим всех юнитов в соседних клетках (8 направлений)
+        std::vector<Entity*> nearbyEntities;
+        auto* mapService = world.GetService<MapService>();
+
+        if (!mapService)
+        {
+            return false;
+        }
+
+        // Проверяем все 8 соседних клеток
+        for (int32_t dx = -1; dx <= 1; ++dx)
+        {
+            for (int32_t dy = -1; dy <= 1; ++dy)
+            {
+                if (dx == 0 && dy == 0) continue; // Пропускаем свою клетку
+
+                int32_t targetX = position->x + dx;
+                int32_t targetY = position->y + dy;
+
+                // Проверяем, есть ли юнит в этой клетке
+                Entity* targetEntity = mapService->GetEntityAtCell(targetX, targetY);
+                if (targetEntity && targetEntity != entity && WorldHelper::IsAlive(*targetEntity))
+                {
+                    nearbyEntities.push_back(targetEntity);
+                }
+            }
+        }
+
+        // Если нет целей поблизости, атака не удалась
+        if (nearbyEntities.empty())
+        {
+            DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId() << " found no targets nearby");
+            return false;
+        }
+
+        // Выбираем случайную цель
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(0, nearbyEntities.size() - 1);
+        Entity* target = nearbyEntities[distrib(gen)];
+
+        // Наносим урон
+        auto* targetHealth = target->GetComponent<HealthComponent>();
+        if (targetHealth)
+        {
+            int32_t damage = strength->strength;
+            targetHealth->health -= damage;
+
+            DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId()
+                      << " attacked Entity " << target->GetId()
+                      << " for " << damage << " damage (health now: " << targetHealth->health << ")");
+
+            // Если цель умерла, логируем это
+            if (targetHealth->health <= 0)
+            {
+                DEBUG_LOG("SwordsmanMeleeAttack: Entity " << target->GetId() << " died from attack");
+            }
+        }
+
+        return true; // Атака удалась
     }
 
     bool HunterMeleeAttack::Act(World& world, Entity* entity)
@@ -25,7 +90,7 @@ namespace sw::ecs
         // Аналогично SwordsmanMeleeAttack, но возможно с другими характеристиками
 
         DEBUG_LOG("HunterMeleeAttack: Entity " << entity->GetId() << " performing melee attack");
-        return false; // Временно возвращаем false, чтобы дать шанс движению
+        return false; // Пока возвращаем false
     }
 
     bool HunterRangeAttack::Act(World& world, Entity* entity)
@@ -35,7 +100,7 @@ namespace sw::ecs
         // Нанести урон на расстоянии
 
         DEBUG_LOG("HunterRangeAttack: Entity " << entity->GetId() << " performing range attack");
-        return false; // Временно возвращаем false, чтобы дать шанс движению
+        return false; // Пока возвращаем false
     }
 
     bool MoveToTarget::Act(World& world, Entity* entity)

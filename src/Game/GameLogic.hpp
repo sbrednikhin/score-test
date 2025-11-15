@@ -12,7 +12,7 @@ namespace sw
     class GameLogic
     {
     public:
-        GameLogic();
+        GameLogic(std::shared_ptr<ICommandSource> commandSource);
         ~GameLogic();
 
         void Initialize();
@@ -28,9 +28,6 @@ namespace sw
         // Получить текущий номер тика
         int GetCurrentTick() const { return _updateCounter; }
 
-        // Работа с источником команд
-        void SetCommandSource(std::shared_ptr<ICommandSource> source);
-        void ProcessCommands();
 
         // Статический интерфейс доступа к менеджерам
         static CommandManager& GetCommandManager() { return CommandManager::Get(); }

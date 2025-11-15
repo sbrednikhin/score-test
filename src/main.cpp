@@ -28,14 +28,12 @@ int main(int argc, char** argv)
     }
 
 	// Инициализация игровой логики
-	GameLogic gameLogic;
-    gameLogic.SetCommandSource(commandSource);
+	GameLogic gameLogic(commandSource);
 	gameLogic.Initialize();
 
-	// Игровой цикл с обработкой команд
+	// Игровой цикл симуляции
 	while (!gameLogic.IsCompleted())
 	{
-		gameLogic.ProcessCommands();  // Обрабатываем команды в каждом кадре
 		gameLogic.Update();
 	}
 

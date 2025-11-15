@@ -6,8 +6,9 @@
 namespace sw
 {
     using namespace ecs;
-    GameLogic::GameLogic()
-        : _isInitialized(false)
+    GameLogic::GameLogic(std::shared_ptr<ICommandSource> commandSource)
+        : _commandSource(commandSource)
+        , _isInitialized(false)
         , _isRunning(false)
         , _updateCounter(0)
     {
@@ -29,8 +30,11 @@ namespace sw
         _worldManager->Initialize();  // Сначала инициализируем мир (без сущностей)
         _commandManager->Initialize();
 
-        // Обрабатываем команды для создания начальных сущностей
-        ProcessCommands();
+        // Обрабатываем команды из источника
+        if (auto source = _commandSource.lock())
+        {
+            source->ProcessCommands();
+        }
 
         // Создаем систему событий (теперь безопасно передавать ссылку на себя)
         auto eventSystem = std::make_unique<EventLogSystem>(*this);
@@ -66,8 +70,6 @@ namespace sw
         }
         ++_updateCounter;
 
-        ProcessCommands();
-
         // Обновляем менеджеры в правильном порядке
         if (_commandManager) _commandManager->Update();  // Обрабатываем команды
         if (_worldManager) _worldManager->Update();      // Обновляем мир (системы ECS)
@@ -78,28 +80,21 @@ namespace sw
         if (!_isRunning) return true;
 
         // Если есть активные сущности, продолжаем симуляцию
-        if (_worldManager)
+		if (_worldManager && WorldHelper::HasActiveEntities(_worldManager->GetWorld()))
         {
-            return !WorldHelper::HasActiveEntities(_worldManager->GetWorld());
+            return false;
         }
 
-        // Если нет менеджера мира, завершаемся
+        // Если есть необработанные команды, продолжаем симуляцию
+        if (_commandManager && !_commandManager->GetCommands().empty())
+        {
+            return false;
+        }
+
+        // Нет активных сущностей и нет команд - завершаемся
         return true;
     }
 
-    void GameLogic::SetCommandSource(std::shared_ptr<ICommandSource> source)
-    {
-        _commandSource = source;
-    }
-
-    void GameLogic::ProcessCommands()
-    {
-        if (auto source = _commandSource.lock()) {
-            if (source->IsAvailable()) {
-                source->ProcessCommands();
-            }
-        }
-    }
 
     void GameLogic::SetExternalEventSystem(std::unique_ptr<IExternalEventSystem> eventSystem)
     {
