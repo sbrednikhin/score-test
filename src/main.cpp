@@ -1,3 +1,4 @@
+#include <IO/Commands/ICommand.hpp>
 #include <IO/Commands/CreateMap.hpp>
 #include <IO/Commands/March.hpp>
 #include <IO/Commands/SpawnHunter.hpp>
@@ -12,6 +13,7 @@
 #include <IO/System/CommandParser.hpp>
 #include <IO/System/EventLog.hpp>
 #include <IO/System/PrintDebug.hpp>
+#include <Game/GameLogic.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -30,14 +32,38 @@ int main(int argc, char** argv)
 		throw std::runtime_error("Error: File not found - " + std::string(argv[1]));
 	}
 
+	// Инициализация игровой логики
+	GameLogic gameLogic;
+	gameLogic.Initialize();
+
+	// Игровой цикл
+	while (!gameLogic.IsCompleted())
+	{
+		gameLogic.Update();
+	}
+
+	// Деинициализация
+	gameLogic.Deinitialize();
+
 	// Code for example...
 
-	std::cout << "Commands:\n";
 	io::CommandParser parser;
-	parser.add<io::CreateMap>([](auto command) { printDebug(std::cout, command); })
-		.add<io::SpawnSwordsman>([](auto command) { printDebug(std::cout, command); })
-		.add<io::SpawnHunter>([](auto command) { printDebug(std::cout, command); })
-		.add<io::March>([](auto command) { printDebug(std::cout, command); });
+	parser.add<io::CreateMap>([&gameLogic](io::CreateMap&& command) {
+			gameLogic.GetCommandManager().AddCommand(
+				std::make_shared<io::CreateMap>(std::move(command)));
+		})
+		.add<io::SpawnSwordsman>([&gameLogic](io::SpawnSwordsman&& command) {
+			gameLogic.GetCommandManager().AddCommand(
+				std::make_shared<io::SpawnSwordsman>(std::move(command)));
+		})
+		.add<io::SpawnHunter>([&gameLogic](io::SpawnHunter&& command) {
+			gameLogic.GetCommandManager().AddCommand(
+				std::make_shared<io::SpawnHunter>(std::move(command)));
+		})
+		.add<io::March>([&gameLogic](io::March&& command) {
+			gameLogic.GetCommandManager().AddCommand(
+				std::make_shared<io::March>(std::move(command)));
+		});
 
 	parser.parse(file);
 

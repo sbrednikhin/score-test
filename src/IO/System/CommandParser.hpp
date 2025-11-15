@@ -15,9 +15,9 @@ namespace sw::io
 
 	public:
 		template <class TCommandData>
-		CommandParser& add(std::function<void(TCommandData)> handler)
+		CommandParser& add(std::function<void(TCommandData&&)> handler)
 		{
-			std::string commandName = TCommandData::Name;
+			std::string commandName = TCommandData::TypeName;
 			auto [it, inserted] = _commands.emplace(
 				commandName,
 				[handler = std::move(handler)](std::istream& stream)
