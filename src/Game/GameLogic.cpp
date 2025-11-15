@@ -3,7 +3,8 @@
 namespace sw
 {
     GameLogic::GameLogic()
-        : _isRunning(false)
+        : _isInitialized(false)
+        , _isRunning(false)
         , _updateCounter(0)
     {
     }
@@ -14,19 +15,36 @@ namespace sw
 
     void GameLogic::Initialize()
     {
-        _mapManager.Initialize();
-        _commandManager.Initialize();
+        if (_isInitialized) return;
 
+        // Создаем менеджеры
+        _mapManager = std::make_unique<MapManager>();
+        _commandManager = std::make_unique<CommandManager>();
+
+        // Инициализируем менеджеры
+        _mapManager->Initialize();
+        _commandManager->Initialize();
+
+        _isInitialized = true;
         _isRunning = true;
         _updateCounter = 0;
     }
 
     void GameLogic::Deinitialize()
     {
+        if (!_isInitialized) return;
+
         _isRunning = false;
 
-        _commandManager.Deinitialize();
-        _mapManager.Deinitialize();
+        // Деинициализируем менеджеры
+        if (_commandManager) _commandManager->Deinitialize();
+        if (_mapManager) _mapManager->Deinitialize();
+
+        // Уничтожаем менеджеры
+        _commandManager.reset();
+        _mapManager.reset();
+
+        _isInitialized = false;
     }
 
     void GameLogic::Update()
@@ -35,17 +53,30 @@ namespace sw
         {
             return;
         }
-
         ++_updateCounter;
 
-        // Обновляем менеджеры
-        _mapManager.Update();
-        // CommandManager не имеет Update метода
+        ProcessCommands();
+
+        // Обновляем менеджеры в правильном порядке
+        if (_commandManager) _commandManager->Update();  // Обрабатываем команды
+        if (_mapManager) _mapManager->Update();          // Обновляем карту
     }
 
     bool GameLogic::IsCompleted() const
     {
         // Для демонстрации: выполняем 5 обновлений, затем останавливаемся
         return _isRunning && _updateCounter >= 5;
+    }
+
+    void GameLogic::SetCommandSource(std::unique_ptr<ICommandSource> source)
+    {
+        _commandSource = std::move(source);
+    }
+
+    void GameLogic::ProcessCommands()
+    {
+        if (_commandSource && _commandSource->IsAvailable()) {
+            _commandSource->ProcessCommands();
+        }
     }
 }

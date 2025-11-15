@@ -1,0 +1,27 @@
+#pragma once
+
+#include "ICommandSource.hpp"
+#include <IO/System/CommandParser.hpp>
+#include <fstream>
+#include <string>
+
+namespace sw
+{
+    class FileCommandSource : public ICommandSource
+    {
+    public:
+    FileCommandSource(const std::string& filename);
+    ~FileCommandSource() override;
+
+    void Initialize();
+    void ProcessCommands() override;
+    bool IsAvailable() const override;
+
+    private:
+        std::string _filename;
+        std::ifstream _file;
+        io::CommandParser _parser;
+        bool _isInitialized;
+        bool _isParsed;
+    };
+}
