@@ -5,39 +5,41 @@
 
 namespace sw
 {
-    WorldManager::WorldManager()
-        : _world(std::make_unique<ecs::World>())
-    {
-    }
+	WorldManager::WorldManager()
+		: _world(std::make_unique<ecs::World>())
+	{
+	}
 
-    WorldManager::~WorldManager()
-    {
-    }
+	WorldManager::~WorldManager()
+	{
+	}
 
-    void WorldManager::Initialize()
-    {
-        // Регистрируем сервисы
-        _world->RegisterService(std::make_unique<ecs::MapService>(*_world));
+	void WorldManager::Initialize()
+	{
+		// Регистрируем сервисы
+		_world->RegisterService(std::make_unique<ecs::MapService>(*_world));
 
-        // Регистрируем системы
-        _world->RegisterSystem(std::make_unique<ecs::DeathSystem>());
-        _world->RegisterSystem(std::make_unique<ecs::BehaviourSystem>());
+		// Регистрируем системы
+		_world->RegisterSystem(std::make_unique<ecs::DeathSystem>());
+		_world->RegisterSystem(std::make_unique<ecs::BehaviourSystem>());
 
-        // Инициализируем мир
-        _world->Initialize();
-    }
+		// Инициализируем мир
+		_world->Initialize();
+	}
 
-    void WorldManager::Deinitialize()
-    {
-        if (_world) {
-            _world->Deinitialize();
-        }
-    }
+	void WorldManager::Deinitialize()
+	{
+		if (_world) {
+			_world->Deinitialize();
+		}
+	}
 
-    void WorldManager::Update()
-    {
-        if (_world) {
-            _world->Update();
-        }
-    }
+	void WorldManager::Update()
+	{
+		if (_world) {
+			_world->Update();
+		}
+	}
 }
+
+

@@ -38,3 +38,5 @@ namespace sw::io
 		void parse(std::istream& stream);
 	};
 }
+
+

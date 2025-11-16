@@ -6,182 +6,184 @@
 
 namespace sw::ecs
 {
-    World::World()
-    {
-    }
+	World::World()
+	{
+	}
 
-    World::~World()
-    {
-        Deinitialize();
-    }
+	World::~World()
+	{
+		Deinitialize();
+	}
 
-    Entity* World::CreateEntity()
-    {
-        DEBUG_ASSERT(_isInitialized && "Cannot create entities before world initialization");
+	Entity* World::CreateEntity()
+	{
+		DEBUG_ASSERT(_isInitialized && "Cannot create entities before world initialization");
 
-        uint32_t id = _nextEntityId++;
-        auto entity = std::make_shared<Entity>(id);
-        _entitiesStorage[id] = entity;
-        return entity.get();
-    }
+		uint32_t id = _nextEntityId++;
+		auto entity = std::make_shared<Entity>(id);
+		_entitiesStorage[id] = entity;
+		return entity.get();
+	}
 
-    Entity* World::GetEntity(uint32_t id) const
-    {
-        auto it = _entitiesStorage.find(id);
-        return it != _entitiesStorage.end() ? it->second.get() : nullptr;
-    }
+	Entity* World::GetEntity(uint32_t id) const
+	{
+		auto it = _entitiesStorage.find(id);
+		return it != _entitiesStorage.end() ? it->second.get() : nullptr;
+	}
 
-    Entity* World::GetEntityByExternalId(int32_t externalId) const
-    {
-        auto it = _externalIdToEntity.find(externalId);
-        return it != _externalIdToEntity.end() ? it->second : nullptr;
-    }
+	Entity* World::GetEntityByExternalId(int32_t externalId) const
+	{
+		auto it = _externalIdToEntity.find(externalId);
+		return it != _externalIdToEntity.end() ? it->second : nullptr;
+	}
 
-    Entity* World::BeginEntityInitialization()
-    {
-        // Создаем новую сущность для инициализации
-        _currentInitializingEntity = CreateEntity();
-        _currentInitializingEntity->BeginInitialization();
+	Entity* World::BeginEntityInitialization()
+	{
+		// Создаем новую сущность для инициализации
+		_currentInitializingEntity = CreateEntity();
+		_currentInitializingEntity->BeginInitialization();
 
-        return _currentInitializingEntity;
-    }
+		return _currentInitializingEntity;
+	}
 
-    void World::EndEntityInitialization()
-    {
-        // Проверяем, что есть сущность в инициализации
-        DEBUG_ASSERT(_currentInitializingEntity && "No entity is being initialized");
+	void World::EndEntityInitialization()
+	{
+		// Проверяем, что есть сущность в инициализации
+		DEBUG_ASSERT(_currentInitializingEntity && "No entity is being initialized");
 
-        _currentInitializingEntity->EndInitialization();
+		_currentInitializingEntity->EndInitialization();
 
-        // Если у сущности есть компонент внешнего ID, добавляем в мапу для быстрого поиска
-        auto* externalId = _currentInitializingEntity->GetComponent<ExternalIdComponent>();
-        if (externalId)
-        {
-            _externalIdToEntity[externalId->externalId] = _currentInitializingEntity;
-        }
+		// Если у сущности есть компонент внешнего ID, добавляем в мапу для быстрого поиска
+		auto* externalId = _currentInitializingEntity->GetComponent<ExternalIdComponent>();
+		if (externalId)
+		{
+			_externalIdToEntity[externalId->externalId] = _currentInitializingEntity;
+		}
 
-        // Если у сущности есть компонент позиции, занимаем соответствующую клетку
-        auto* position = _currentInitializingEntity->GetComponent<PositionComponent>();
-        if (position)
-        {
-            auto* mapService = GetService<MapService>();
-            if (mapService)
-            {
-                mapService->OccupyCell(position->x, position->y, _currentInitializingEntity);
-            }
-        }
+		// Если у сущности есть компонент позиции, занимаем соответствующую клетку
+		auto* position = _currentInitializingEntity->GetComponent<PositionComponent>();
+		if (position)
+		{
+			auto* mapService = GetService<MapService>();
+			if (mapService)
+			{
+				mapService->OccupyCell(position->x, position->y, _currentInitializingEntity);
+			}
+		}
 
-        _currentInitializingEntity = nullptr; // Очищаем указатель
-    }
+		_currentInitializingEntity = nullptr; // Очищаем указатель
+	}
 
-    bool World::IsEntityBeingInitialized() const
-    {
-        return _currentInitializingEntity != nullptr;
-    }
-
-
-    void World::MarkEntityForDestruction(uint32_t id)
-    {
-        auto it = _entitiesStorage.find(id);
-        if (it != _entitiesStorage.end())
-        {
-            it->second->MarkForDestruction();
-        }
-    }
+	bool World::IsEntityBeingInitialized() const
+	{
+		return _currentInitializingEntity != nullptr;
+	}
 
 
-    void World::RegisterSystem(std::unique_ptr<ISystem> system)
-    {
-        _systems.push_back(std::move(system));
-    }
+	void World::MarkEntityForDestruction(uint32_t id)
+	{
+		auto it = _entitiesStorage.find(id);
+		if (it != _entitiesStorage.end())
+		{
+			it->second->MarkForDestruction();
+		}
+	}
 
-    void World::RegisterService(std::unique_ptr<ServiceBase> service)
-    {
-        _services.push_back(std::move(service));
-    }
 
-    void World::Initialize()
-    {
-        // На момент инициализации мир пуст, поэтому проверки не нужны
-        _isInitialized = true;
+	void World::RegisterSystem(std::unique_ptr<ISystem> system)
+	{
+		_systems.push_back(std::move(system));
+	}
 
-        DEBUG_LOG("World initialized with " << _entitiesStorage.size() << " entities and "
-                   << _systems.size() << " systems");
-    }
+	void World::RegisterService(std::unique_ptr<ServiceBase> service)
+	{
+		_services.push_back(std::move(service));
+	}
 
-    void World::Deinitialize()
-    {
-        // Деинициализируем все сущности
-        for (const auto& pair : _entitiesStorage)
-        {
-            pair.second->Deinitialize();
-        }
+	void World::Initialize()
+	{
+		// На момент инициализации мир пуст, поэтому проверки не нужны
+		_isInitialized = true;
 
-        _entitiesStorage.clear();
-        _externalIdToEntity.clear();
-        _systems.clear();
-        _services.clear();
-        _isInitialized = false;
-    }
+		DEBUG_LOG("World initialized with " << _entitiesStorage.size() << " entities and "
+				   << _systems.size() << " systems");
+	}
 
-    void World::Update()
-    {
-        // Обновляем все системы
-        for (auto& system : _systems)
-        {
-            system->ProcessWorld(*this);
-        }
+	void World::Deinitialize()
+	{
+		// Деинициализируем все сущности
+		for (const auto& pair : _entitiesStorage)
+		{
+			pair.second->Deinitialize();
+		}
 
-        // Уничтожаем все сущности, помеченные на уничтожение
-        DestroyMarkedEntities();
-    }
+		_entitiesStorage.clear();
+		_externalIdToEntity.clear();
+		_systems.clear();
+		_services.clear();
+		_isInitialized = false;
+	}
 
-    void World::DestroyMarkedEntities()
-    {
-        // Находим все сущности, помеченные на уничтожение
-        std::vector<uint32_t> entitiesToDestroy;
+	void World::Update()
+	{
+		// Обновляем все системы
+		for (auto& system : _systems)
+		{
+			system->ProcessWorld(*this);
+		}
 
-        for (const auto& pair : _entitiesStorage)
-        {
-            if (pair.second->IsMarkedForDestruction())
-            {
-                entitiesToDestroy.push_back(pair.first);
-            }
-        }
+		// Уничтожаем все сущности, помеченные на уничтожение
+		DestroyMarkedEntities();
+	}
 
-        // Уничтожаем найденные сущности
-        for (uint32_t id : entitiesToDestroy)
-        {
-            auto it = _entitiesStorage.find(id);
-            if (it != _entitiesStorage.end())
-            {
-                Entity* entity = it->second.get();
+	void World::DestroyMarkedEntities()
+	{
+		// Находим все сущности, помеченные на уничтожение
+		std::vector<uint32_t> entitiesToDestroy;
 
-                // Освобождаем клетку на карте перед уничтожением сущности
-                auto* position = entity->GetComponent<PositionComponent>();
-                if (position)
-                {
-                    auto* mapService = GetService<MapService>();
-                    if (mapService)
-                    {
-                        bool freed = mapService->FreeCell(position->x, position->y);
-                        if (!freed)
-                        {
-                            DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ") for entity " << id);
-                        }
-                    }
-                }
+		for (const auto& pair : _entitiesStorage)
+		{
+			if (pair.second->IsMarkedForDestruction())
+			{
+				entitiesToDestroy.push_back(pair.first);
+			}
+		}
 
-                // Удаляем из мапы внешних ID, если есть
-                auto* externalId = entity->GetComponent<ExternalIdComponent>();
-                if (externalId)
-                {
-                    _externalIdToEntity.erase(externalId->externalId);
-                }
+		// Уничтожаем найденные сущности
+		for (uint32_t id : entitiesToDestroy)
+		{
+			auto it = _entitiesStorage.find(id);
+			if (it != _entitiesStorage.end())
+			{
+				Entity* entity = it->second.get();
 
-                entity->Destroy();
-                _entitiesStorage.erase(it);
-            }
-        }
-    }
+				// Освобождаем клетку на карте перед уничтожением сущности
+				auto* position = entity->GetComponent<PositionComponent>();
+				if (position)
+				{
+					auto* mapService = GetService<MapService>();
+					if (mapService)
+					{
+						bool freed = mapService->FreeCell(position->x, position->y);
+						if (!freed)
+						{
+							DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ") for entity " << id);
+						}
+					}
+				}
+
+				// Удаляем из мапы внешних ID, если есть
+				auto* externalId = entity->GetComponent<ExternalIdComponent>();
+				if (externalId)
+				{
+					_externalIdToEntity.erase(externalId->externalId);
+				}
+
+				entity->Destroy();
+				_entitiesStorage.erase(it);
+			}
+		}
+	}
 }
+
+

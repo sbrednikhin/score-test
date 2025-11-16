@@ -5,21 +5,23 @@
 
 namespace sw
 {
-    class WorldManager final : public ManagerBase<WorldManager>
-    {
-    public:
-        WorldManager();
-        ~WorldManager();
+	class WorldManager final : public ManagerBase<WorldManager>
+	{
+	public:
+		WorldManager();
+		~WorldManager();
 
-        void Initialize() override;
-        void Deinitialize() override;
-        void Update() override;
+		void Initialize() override;
+		void Deinitialize() override;
+		void Update() override;
 
-        // Доступ к миру
-        ecs::World& GetWorld() { return *_world; }
-        const ecs::World& GetWorld() const { return *_world; }
+		// Доступ к миру
+		ecs::World& GetWorld() { return *_world; }
+		const ecs::World& GetWorld() const { return *_world; }
 
-    private:
-        std::unique_ptr<ecs::World> _world;
-    };
+	private:
+		std::unique_ptr<ecs::World> _world;
+	};
 }
+
+

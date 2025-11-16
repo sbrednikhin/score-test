@@ -4,13 +4,15 @@
 
 namespace sw::ecs
 {
-    class DeathSystem : public ISystem
-    {
-    public:
-        DeathSystem() = default;
-        ~DeathSystem() override = default;
+	class DeathSystem : public ISystem
+	{
+	public:
+		DeathSystem() = default;
+		~DeathSystem() override = default;
 
-        void ProcessWorld(World& world) override;
-    };
+		void ProcessWorld(World& world) override;
+	};
 }
+
+
 

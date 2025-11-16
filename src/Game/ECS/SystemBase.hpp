@@ -4,29 +4,31 @@
 
 namespace sw::ecs
 {
-    class Entity;
-    class World;
+	class Entity;
+	class World;
 
-    class ISystem
-    {
-    public:
-        virtual ~ISystem() = default;
+	class ISystem
+	{
+	public:
+		virtual ~ISystem() = default;
 
-        // Основной метод обработки мира
-        virtual void ProcessWorld(World& world) = 0;
-    };
+		// Основной метод обработки мира
+		virtual void ProcessWorld(World& world) = 0;
+	};
 
-    class ServiceBase
-    {
-    public:
-        explicit ServiceBase(const World& world) : _world(world) {}
-        virtual ~ServiceBase() = default;
+	class ServiceBase
+	{
+	public:
+		explicit ServiceBase(const World& world) : _world(world) {}
+		virtual ~ServiceBase() = default;
 
-        // Проверка готовности сервиса
-        virtual bool IsReady() const = 0;
+		// Проверка готовности сервиса
+		virtual bool IsReady() const = 0;
 
-    protected:
-        const World& _world;
-    };
+	protected:
+		const World& _world;
+	};
 }
+
+
 

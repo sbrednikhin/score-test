@@ -8,21 +8,23 @@
 
 namespace sw
 {
-    class FileCommandSource : public ICommandSource, public std::enable_shared_from_this<FileCommandSource>
-    {
-    public:
-    FileCommandSource(const std::string& filename);
-    ~FileCommandSource() override;
+	class FileCommandSource : public ICommandSource, public std::enable_shared_from_this<FileCommandSource>
+	{
+	public:
+	FileCommandSource(const std::string& filename);
+	~FileCommandSource() override;
 
-    void Initialize();
-    void ProcessCommands() override;
-    bool IsAvailable() const override;
+	void Initialize();
+	void ProcessCommands() override;
+	bool IsAvailable() const override;
 
-    private:
-        std::string _filename;
-        std::ifstream _file;
-        io::CommandParser _parser;
-        bool _isInitialized;
-        bool _isParsed;
-    };
+	private:
+		std::string _filename;
+		std::ifstream _file;
+		io::CommandParser _parser;
+		bool _isInitialized;
+		bool _isParsed;
+	};
 }
+
+

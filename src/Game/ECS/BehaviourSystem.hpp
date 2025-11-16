@@ -4,13 +4,16 @@
 
 namespace sw::ecs
 {
-    class BehaviourSystem : public ISystem
-    {
-    public:
-        BehaviourSystem() = default;
-        ~BehaviourSystem() override = default;
+	class BehaviourSystem : public ISystem
+	{
+	public:
+		BehaviourSystem() = default;
+		~BehaviourSystem() override = default;
 
-        void ProcessWorld(World& world) override;
-    };
+		void ProcessWorld(World& world) override;
+	};
 }
+
+
+
 
