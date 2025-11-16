@@ -50,5 +50,3 @@ namespace sw
 	template<typename Derived>
 	Derived* ManagerBase<Derived>::_instance = nullptr;
 }
-
-

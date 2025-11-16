@@ -50,6 +50,3 @@ namespace sw::ecs
 		// _state уже установлен в Destroyed в Deinitialize()
 	}
 }
-
-
-

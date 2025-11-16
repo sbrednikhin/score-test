@@ -30,5 +30,3 @@ namespace sw
 		std::unique_ptr<EventLog> _eventLog;
 	};
 }
-
-

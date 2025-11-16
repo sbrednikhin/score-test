@@ -13,6 +13,3 @@ namespace sw::ecs
 		void ProcessWorld(World& world) override;
 	};
 }
-
-
-

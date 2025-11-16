@@ -19,5 +19,3 @@ namespace sw::io
 		}
 	};
 }
-
-

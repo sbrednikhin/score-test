@@ -16,5 +16,3 @@
 	#define DEBUG_LOG(message)
 	#define DEBUG_ASSERT(condition)
 #endif
-
-

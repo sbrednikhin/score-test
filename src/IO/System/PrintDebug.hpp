@@ -13,5 +13,3 @@ namespace sw
 		stream << "\n";
 	}
 }
-
-

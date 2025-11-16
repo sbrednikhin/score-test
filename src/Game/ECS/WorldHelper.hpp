@@ -26,5 +26,3 @@ namespace sw::ecs
 		static Entity* SelectRandomTarget(const std::vector<Entity*>& targets);
 	};
 }
-
-

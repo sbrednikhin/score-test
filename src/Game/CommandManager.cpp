@@ -224,5 +224,3 @@ namespace sw
 		DEBUG_LOG("Set movement target for entity " << targetEntity->GetId());
 	}
 }
-
-

@@ -37,5 +37,3 @@ namespace sw
 		std::vector<std::shared_ptr<sw::io::ICommand>> _commands;
 	};
 }
-
-

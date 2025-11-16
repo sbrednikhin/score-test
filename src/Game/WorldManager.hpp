@@ -23,5 +23,3 @@ namespace sw
 		std::unique_ptr<ecs::World> _world;
 	};
 }
-
-

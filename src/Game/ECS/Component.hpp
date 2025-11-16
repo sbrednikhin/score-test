@@ -50,6 +50,3 @@ namespace sw::ecs
 
 	};
 }
-
-
-

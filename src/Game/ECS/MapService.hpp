@@ -104,5 +104,3 @@ namespace sw::ecs
 		MapComponent* GetMapComponent() const;
 	};
 }
-
-

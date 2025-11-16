@@ -27,5 +27,3 @@ namespace sw::io
 		}
 	};
 }
-
-

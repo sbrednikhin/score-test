@@ -128,5 +128,3 @@ namespace sw::ecs
 		return targets[distrib(gen)];
 	}
 }
-
-

@@ -26,5 +26,3 @@ namespace sw
 		bool _isParsed;
 	};
 }
-
-

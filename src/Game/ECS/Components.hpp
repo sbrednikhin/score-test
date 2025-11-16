@@ -148,6 +148,3 @@ namespace sw::ecs
 		ComponentType GetType() const override { return ComponentType::Velocity; }
 	};
 }
-
-
-

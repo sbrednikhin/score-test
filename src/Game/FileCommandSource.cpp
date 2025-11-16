@@ -72,5 +72,3 @@ namespace sw
 		return _isInitialized && _file.is_open();
 	}
 }
-
-

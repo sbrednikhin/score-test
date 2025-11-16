@@ -126,5 +126,3 @@ namespace sw::ecs
 		std::unordered_map<std::type_index, std::unique_ptr<Component>> _components;
 	};
 }
-
-

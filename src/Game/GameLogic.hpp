@@ -48,5 +48,3 @@ namespace sw
 		int _updateCounter;
 	};
 }
-
-

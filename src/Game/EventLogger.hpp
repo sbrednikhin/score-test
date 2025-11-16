@@ -24,5 +24,3 @@ namespace sw
 		static IExternalEventSystem* _eventSystem;
 	};
 }
-
-

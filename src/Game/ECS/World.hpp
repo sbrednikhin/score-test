@@ -103,6 +103,3 @@ namespace sw::ecs
 		void DestroyMarkedEntities();
 	};
 }
-
-
-

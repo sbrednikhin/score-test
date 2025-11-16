@@ -185,5 +185,3 @@ namespace sw::ecs
 		}
 	}
 }
-
-

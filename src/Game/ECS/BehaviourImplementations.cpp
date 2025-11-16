@@ -189,5 +189,3 @@ namespace sw::ecs
 		return WorldHelper::MoveEntityTo(world, entity, newX, newY);
 	}
 }
-
-

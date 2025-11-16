@@ -26,5 +26,3 @@ namespace sw
 		virtual void LogUnitDied(uint32_t unitId) = 0;
 	};
 }
-
-

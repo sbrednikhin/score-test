@@ -19,5 +19,3 @@ namespace sw
 		virtual bool IsAvailable() const = 0;
 	};
 }
-
-

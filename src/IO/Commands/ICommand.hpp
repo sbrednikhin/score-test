@@ -15,5 +15,3 @@ namespace sw::io
 		virtual size_t GetTypeId() const = 0;
 	};
 }
-
-

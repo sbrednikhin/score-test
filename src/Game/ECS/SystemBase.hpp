@@ -29,6 +29,3 @@ namespace sw::ecs
 		const World& _world;
 	};
 }
-
-
-
