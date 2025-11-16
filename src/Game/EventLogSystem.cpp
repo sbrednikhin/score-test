@@ -61,11 +61,11 @@ namespace sw
 		}
 	}
 
-	void EventLogSystem::LogUnitAttacked(uint32_t attackerId, uint32_t targetId)
+	void EventLogSystem::LogUnitAttacked(uint32_t attackerId, uint32_t targetId, uint32_t damage, uint32_t targetHp)
 	{
 		if (_eventLog)
 		{
-			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitAttacked{ attackerId, targetId });
+			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitAttacked{ attackerId, targetId, damage, targetHp });
 		}
 	}
 

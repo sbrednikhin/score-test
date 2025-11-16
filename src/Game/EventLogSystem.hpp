@@ -22,7 +22,7 @@ namespace sw
 		void LogMarchStarted(uint32_t unitId, uint32_t fromX, uint32_t fromY, uint32_t toX, uint32_t toY) override;
 		void LogMarchEnded(uint32_t unitId, uint32_t x, uint32_t y) override;
 		void LogUnitMoved(uint32_t unitId, uint32_t x, uint32_t y) override;
-		void LogUnitAttacked(uint32_t attackerId, uint32_t targetId) override;
+		void LogUnitAttacked(uint32_t attackerId, uint32_t targetId, uint32_t damage, uint32_t targetHp) override;
 		void LogUnitDied(uint32_t unitId) override;
 
 	private:

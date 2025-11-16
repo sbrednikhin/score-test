@@ -51,9 +51,12 @@ namespace sw::ecs
 		// Логируем атаку
 		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
 		auto* targetId = target->GetComponent<ExternalIdComponent>();
+		auto* targetHealth = target->GetComponent<HealthComponent>();
+		int32_t damage = strength->strength;
+		int32_t targetHpBefore = targetHealth ? targetHealth->health : 0;
 		if (attackerId && targetId)
 		{
-			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId);
+			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId, damage, targetHpBefore - damage);
 		}
 
 		// Наносим урон
@@ -110,9 +113,12 @@ namespace sw::ecs
 		// Логируем атаку
 		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
 		auto* targetId = target->GetComponent<ExternalIdComponent>();
+		auto* targetHealth = target->GetComponent<HealthComponent>();
+		int32_t damage = agility->agility;
+		int32_t targetHpBefore = targetHealth ? targetHealth->health : 0;
 		if (attackerId && targetId)
 		{
-			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId);
+			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId, damage, targetHpBefore - damage);
 		}
 
 		// Наносим урон (Agility)
