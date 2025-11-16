@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 namespace sw::ecs
 {
 	// Типы компонентов для идентификации и битовых масок

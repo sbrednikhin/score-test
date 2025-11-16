@@ -1,15 +1,5 @@
-#include <IO/Events/MapCreated.hpp>
-#include <IO/Events/MarchEnded.hpp>
-#include <IO/Events/MarchStarted.hpp>
-#include <IO/Events/UnitAttacked.hpp>
-#include <IO/Events/UnitDied.hpp>
-#include <IO/Events/UnitMoved.hpp>
-#include <IO/Events/UnitSpawned.hpp>
-#include <IO/System/EventLog.hpp>
 #include <Game/GameLogic.hpp>
 #include <Game/FileCommandSource.hpp>
-#include <Game/EventLogSystem.hpp>
-#include "Debug.hpp"
 
 int main(int argc, char** argv)
 {

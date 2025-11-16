@@ -1,7 +1,7 @@
 #include "World.hpp"
 #include "Components.hpp"
 #include "MapService.hpp"
-#include "Debug.hpp"
+#include <Debug.hpp>
 #include <algorithm>
 
 namespace sw::ecs

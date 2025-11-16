@@ -1,8 +1,8 @@
 #include "CommandManager.hpp"
 #include "WorldManager.hpp"
-#include "ECS/Components.hpp"
-#include "ECS/MapService.hpp"
-#include "Debug.hpp"
+#include <Game/ECS/Components.hpp>
+#include <Game/ECS/MapService.hpp>
+#include <Debug.hpp>
 #include <cstring>
 
 namespace sw

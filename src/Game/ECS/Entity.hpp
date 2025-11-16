@@ -22,19 +22,16 @@ namespace sw::ecs
 	class Entity
 	{
 	public:
-	explicit Entity(uint32_t id);
-	~Entity();
+		explicit Entity(uint32_t id);
+		~Entity();
 
-	uint32_t GetId() const { return _id; }
+		uint32_t GetId() const { return _id; }
 
-	// Получение состояния
-	EntityState GetState() const { return _state; }
+		// Получение состояния
+		EntityState GetState() const { return _state; }
 
-	// Проверка состояния (для обратной совместимости)
-	bool IsValid() const { return _state == EntityState::Valid; }
-	bool IsInitializing() const { return _state == EntityState::Initializing; }
-	bool IsMarkedForDestruction() const { return _state == EntityState::MarkedForDestruction; }
-
+		// Проверка состояний
+		bool IsMarkedForDestruction() const { return _state == EntityState::MarkedForDestruction; }
 
 		// Добавление компонентов (в любое время)
 		template<typename T, typename... Args>
@@ -45,12 +42,12 @@ namespace sw::ecs
 			auto component = std::make_unique<T>(std::forward<Args>(args)...);
 			auto typeIndex = std::type_index(typeid(T));
 
-			// Устанавливаем бит в маске
-			_componentMask[static_cast<size_t>(component->GetType())] = true;
+		// Устанавливаем бит в маске
+		_componentMask[static_cast<size_t>(component->GetType())] = true;
 
-			T* ptr = component.get();
-			_components[typeIndex] = std::move(component);
-			return *ptr;
+		T* ptr = component.get();
+		_components[typeIndex] = std::move(component);
+		return *ptr;
 		}
 
 		// Удаление компонентов (в любое время)
@@ -108,7 +105,6 @@ namespace sw::ecs
 			return _componentMask.to_ullong();
 		}
 
-
 	private:
 		// Управление жизненным циклом (доступ только через friend World)
 		void BeginInitialization();
@@ -117,7 +113,7 @@ namespace sw::ecs
 		void MarkForDestruction();
 		void Destroy();
 
-		// Доступ для мира к приватным методам жизненного цикла
+			// Доступ для мира к приватным методам жизненного цикла
 		friend class World;
 
 		uint32_t _id;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ManagerBase.hpp"
-#include "ECS/World.hpp"
+#include <Game/ECS/World.hpp>
 
 namespace sw
 {

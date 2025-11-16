@@ -2,14 +2,10 @@
 #include "World.hpp"
 #include "MapService.hpp"
 #include "WorldHelper.hpp"
-#include "Debug.hpp"
-#include "../IExternalEventSystem.hpp"
-#include "../EventSystemManager.hpp"
+#include <Debug.hpp>
+#include <Game/EventSystemManager.hpp>
 #include <cmath>
 #include <limits>
-#include <algorithm>
-#include <random>
-#include <vector>
 
 namespace sw::ecs
 {
@@ -48,19 +44,8 @@ namespace sw::ecs
 			return false; // Не должно случиться, но на всякий случай
 		}
 
-		// Логируем атаку
-		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
-		auto* targetId = target->GetComponent<ExternalIdComponent>();
-		auto* targetHealth = target->GetComponent<HealthComponent>();
-		int32_t damage = strength->strength;
-		int32_t targetHpBefore = targetHealth ? targetHealth->health : 0;
-		if (attackerId && targetId)
-		{
-			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId, damage, targetHpBefore - damage);
-		}
-
-		// Наносим урон
-		WorldHelper::DealDamage(target, strength->strength, "MeleeAttack");
+		// Выполняем атаку с полным логированием
+		WorldHelper::AttackEntity(entity, target, strength->strength, "MeleeAttack");
 
 		return true; // Атака удалась
 	}
@@ -110,19 +95,8 @@ namespace sw::ecs
 			return false; // Не должно случиться, но на всякий случай
 		}
 
-		// Логируем атаку
-		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
-		auto* targetId = target->GetComponent<ExternalIdComponent>();
-		auto* targetHealth = target->GetComponent<HealthComponent>();
-		int32_t damage = agility->agility;
-		int32_t targetHpBefore = targetHealth ? targetHealth->health : 0;
-		if (attackerId && targetId)
-		{
-			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId, damage, targetHpBefore - damage);
-		}
-
-		// Наносим урон (Agility)
-		WorldHelper::DealDamage(target, agility->agility, "RangeAttack");
+		// Выполняем атаку с полным логированием
+		WorldHelper::AttackEntity(entity, target, agility->agility, "RangeAttack");
 
 		return true; // Атака удалась
 	}

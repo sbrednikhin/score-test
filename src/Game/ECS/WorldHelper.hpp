@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Entity.hpp"
-#include <memory>
 
 namespace sw::ecs
 {
@@ -18,6 +17,9 @@ namespace sw::ecs
 
 		// Проверка, есть ли в мире активные сущности (с активными поведениями)
 		static bool HasActiveEntities(const World& world);
+
+		// Атака сущности с полным логированием (атака + урон + смерть)
+		static void AttackEntity(Entity* attacker, Entity* target, int32_t damage, const char* attackType);
 
 		// Нанесение урона сущности с логированием
 		static void DealDamage(Entity* target, int32_t damage, const char* attackerName);

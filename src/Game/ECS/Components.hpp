@@ -1,10 +1,27 @@
 #pragma once
 
 #include "Component.hpp"
-#include <map>
+#include <unordered_map>
 #include <utility>
 #include <memory>
 #include <vector>
+#include <functional>
+
+namespace std
+{
+	// Хэш-функция для пары координат (x, y)
+	template <>
+	struct hash<std::pair<int32_t, int32_t>>
+	{
+		size_t operator()(const std::pair<int32_t, int32_t>& p) const noexcept
+		{
+			// Комбинируем хэши x и y с помощью простого алгоритма
+			size_t h1 = std::hash<int32_t>{}(p.first);
+			size_t h2 = std::hash<int32_t>{}(p.second);
+			return h1 ^ (h2 << 1); // XOR с сдвигом для лучшего распределения
+		}
+	};
+}
 
 namespace sw::ecs
 {
@@ -105,11 +122,12 @@ namespace sw::ecs
 		int32_t height = 0;
 
 		// Sparse матрица состояний ячеек: key=(x,y), value={id сущности}
+		// Используется unordered_map для быстрого поиска, вставки и удаления
 		struct CellData
 		{
 			uint32_t entityId = 0; // 0-свободно, иначе ID сущности
 		};
-		std::map<std::pair<int32_t, int32_t>, CellData> cells;
+		std::unordered_map<std::pair<int32_t, int32_t>, CellData> cells;
 
 		ComponentType GetType() const override { return ComponentType::Map; }
 	};

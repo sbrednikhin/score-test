@@ -2,9 +2,8 @@
 #include "World.hpp"
 #include "Components.hpp"
 #include "MapService.hpp"
-#include "Debug.hpp"
-#include "../IExternalEventSystem.hpp"
-#include "../EventSystemManager.hpp"
+#include <Debug.hpp>
+#include <Game/EventSystemManager.hpp>
 #include <algorithm>
 #include <random>
 
@@ -88,6 +87,27 @@ namespace sw::ecs
 		}
 
 		return false;
+	}
+
+	void WorldHelper::AttackEntity(Entity* attacker, Entity* target, int32_t damage, const char* attackType)
+	{
+		if (!attacker || !target || damage <= 0)
+		{
+			return;
+		}
+
+		// Логируем атаку
+		auto* attackerId = attacker->GetComponent<ExternalIdComponent>();
+		auto* targetId = target->GetComponent<ExternalIdComponent>();
+		auto* targetHealth = target->GetComponent<HealthComponent>();
+		int32_t targetHpBefore = targetHealth ? targetHealth->health : 0;
+		if (attackerId && targetId)
+		{
+			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId, damage, targetHpBefore - damage);
+		}
+
+		// Наносим урон
+		DealDamage(target, damage, attackType);
 	}
 
 	void WorldHelper::DealDamage(Entity* target, int32_t damage, const char* attackerName)

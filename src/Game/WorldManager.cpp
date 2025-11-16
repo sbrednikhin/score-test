@@ -1,7 +1,7 @@
 #include "WorldManager.hpp"
-#include "ECS/DeathSystem.hpp"
-#include "ECS/BehaviourSystem.hpp"
-#include "ECS/MapService.hpp"
+#include <Game/ECS/DeathSystem.hpp>
+#include <Game/ECS/BehaviourSystem.hpp>
+#include <Game/ECS/MapService.hpp>
 
 namespace sw
 {

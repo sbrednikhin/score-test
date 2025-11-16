@@ -1,8 +1,8 @@
 #include "BehaviourSystem.hpp"
 #include "World.hpp"
 #include "WorldHelper.hpp"
-#include "../ECS/Components.hpp"
-#include "Debug.hpp"
+#include "Components.hpp"
+#include <Debug.hpp>
 
 namespace sw::ecs
 {

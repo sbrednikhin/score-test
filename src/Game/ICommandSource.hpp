@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 
 namespace sw::io { struct ICommand; }

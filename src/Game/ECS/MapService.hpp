@@ -3,7 +3,6 @@
 #include "SystemBase.hpp"
 #include "Entity.hpp"
 #include "Components.hpp"
-#include <memory>
 #include <vector>
 
 namespace sw::ecs
@@ -59,7 +58,7 @@ namespace sw::ecs
 				}
 			}
 
-			return result;
+			return std::move(result);  // Явное применение move семантики;
 		}
 
 		template<typename... Components>
@@ -93,7 +92,7 @@ namespace sw::ecs
 				}
 			}
 
-			return result;
+			return std::move(result);  // Явное применение move семантики;
 		}
 
 	private:

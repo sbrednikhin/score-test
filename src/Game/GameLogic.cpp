@@ -1,7 +1,7 @@
 #include "GameLogic.hpp"
 #include "EventLogSystem.hpp"
 #include "IExternalEventSystem.hpp"
-#include "ECS/WorldHelper.hpp"
+#include <Game/ECS/WorldHelper.hpp>
 
 namespace sw
 {

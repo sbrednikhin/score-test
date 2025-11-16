@@ -1,8 +1,7 @@
 #include "DeathSystem.hpp"
-#include "WorldHelper.hpp"
 #include "World.hpp"
-#include "../ECS/Components.hpp"
-#include "Debug.hpp"
+#include "Components.hpp"
+#include <Debug.hpp>
 
 namespace sw::ecs
 {
