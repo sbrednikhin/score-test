@@ -1,27 +1,14 @@
 #pragma once
 
 #include "Component.hpp"
+#include <Vec2.hpp>
 #include <unordered_map>
 #include <utility>
 #include <memory>
 #include <vector>
 #include <functional>
 
-namespace std
-{
-	// Хэш-функция для пары координат (x, y)
-	template <>
-	struct hash<std::pair<int32_t, int32_t>>
-	{
-		size_t operator()(const std::pair<int32_t, int32_t>& p) const noexcept
-		{
-			// Комбинируем хэши x и y с помощью простого алгоритма
-			size_t h1 = std::hash<int32_t>{}(p.first);
-			size_t h2 = std::hash<int32_t>{}(p.second);
-			return h1 ^ (h2 << 1); // XOR с сдвигом для лучшего распределения
-		}
-	};
-}
+// Хэш-функция для Vec2 определена в Vec2.hpp
 
 namespace sw::ecs
 {
@@ -31,8 +18,7 @@ namespace sw::ecs
 	// Компонент позиции
 	struct PositionComponent : Component
 	{
-		int32_t x = 0;
-		int32_t y = 0;
+		sw::Vec2 position{0, 0};
 
 		ComponentType GetType() const override { return ComponentType::Position; }
 	};
@@ -48,8 +34,7 @@ namespace sw::ecs
 	// Компонент цели движения
 	struct MovementTargetComponent : Component
 	{
-		int32_t targetX = 0;
-		int32_t targetY = 0;
+		sw::Vec2 target{0, 0};
 
 		ComponentType GetType() const override { return ComponentType::MovementTarget; }
 	};
@@ -121,13 +106,13 @@ namespace sw::ecs
 		int32_t width = 0;
 		int32_t height = 0;
 
-		// Sparse матрица состояний ячеек: key=(x,y), value={id сущности}
+		// Sparse матрица состояний ячеек: key=Vec2(x,y), value={id сущности}
 		// Используется unordered_map для быстрого поиска, вставки и удаления
 		struct CellData
 		{
 			uint32_t entityId = 0; // 0-свободно, иначе ID сущности
 		};
-		std::unordered_map<std::pair<int32_t, int32_t>, CellData> cells;
+		std::unordered_map<sw::Vec2, CellData> cells;
 
 		ComponentType GetType() const override { return ComponentType::Map; }
 	};

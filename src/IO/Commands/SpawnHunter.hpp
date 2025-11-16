@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ICommand.hpp"
+#include <Vec2.hpp>
 #include <cstdint>
 #include <iosfwd>
 
@@ -11,8 +12,7 @@ namespace sw::io
 		constexpr static const char* TypeName = "SPAWN_HUNTER";
 
 		uint32_t unitId{};
-		uint32_t x{};
-		uint32_t y{};
+		sw::Vec2 position{};
 		uint32_t hp{};
 		uint32_t agility{};
 		uint32_t strength{};
@@ -20,7 +20,7 @@ namespace sw::io
 
 		SpawnHunter() = default;
 		SpawnHunter(const SpawnHunter& other) :
-			unitId(other.unitId), x(other.x), y(other.y), hp(other.hp),
+			unitId(other.unitId), position(other.position), hp(other.hp),
 			agility(other.agility), strength(other.strength), range(other.range) {}
 
 		virtual const char* GetTypeName() const override { return TypeName; }
@@ -30,8 +30,8 @@ namespace sw::io
 		void visit(Visitor& visitor)
 		{
 			visitor.visit("unitId", unitId);
-			visitor.visit("x", x);
-			visitor.visit("y", y);
+			visitor.visit("x", position.x);
+			visitor.visit("y", position.y);
 			visitor.visit("hp", hp);
 			visitor.visit("agility", agility);
 			visitor.visit("strength", strength);

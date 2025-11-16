@@ -105,7 +105,7 @@ namespace sw
 		auto& world = worldManager.GetWorld();
 
 		DEBUG_LOG("Processing SpawnSwordsman: id=" << command.unitId
-				   << ", pos=(" << command.x << "," << command.y << ")"
+				   << ", pos=(" << command.position.x << "," << command.position.y << ")"
 				   << ", hp=" << command.hp << ", strength=" << command.strength);
 
 		// Создаем сущность мечника
@@ -113,8 +113,7 @@ namespace sw
 
 		// Добавляем компоненты
 		auto& position = swordsmanEntity->AddComponent<sw::ecs::PositionComponent>();
-		position.x = command.x;
-		position.y = command.y;
+		position.position = command.position;
 
 		auto& health = swordsmanEntity->AddComponent<sw::ecs::HealthComponent>();
 		health.health = command.hp;
@@ -140,7 +139,7 @@ namespace sw
 		world.EndEntityInitialization();
 
 		// Логируем создание юнита
-		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Swordsman", command.x, command.y);
+		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Swordsman", command.position);
 
 		DEBUG_LOG("Created swordsman entity with ID: " << swordsmanEntity->GetId());
 	}
@@ -151,7 +150,7 @@ namespace sw
 		auto& world = worldManager.GetWorld();
 
 		DEBUG_LOG("Processing SpawnHunter: id=" << command.unitId
-				   << ", pos=(" << command.x << "," << command.y << ")"
+				   << ", pos=(" << command.position.x << "," << command.position.y << ")"
 				   << ", hp=" << command.hp << ", agility=" << command.agility
 				   << ", strength=" << command.strength << ", range=" << command.range);
 
@@ -160,8 +159,7 @@ namespace sw
 
 		// Добавляем компоненты
 		auto& position = hunterEntity->AddComponent<sw::ecs::PositionComponent>();
-		position.x = command.x;
-		position.y = command.y;
+		position.position = command.position;
 
 		auto& health = hunterEntity->AddComponent<sw::ecs::HealthComponent>();
 		health.health = command.hp;
@@ -194,7 +192,7 @@ namespace sw
 		world.EndEntityInitialization();
 
 		// Логируем создание юнита
-		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Hunter", command.x, command.y);
+		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Hunter", command.position);
 
 		DEBUG_LOG("Created hunter entity with ID: " << hunterEntity->GetId());
 	}
@@ -205,7 +203,7 @@ namespace sw
 		auto& world = worldManager.GetWorld();
 
 		DEBUG_LOG("Processing March: unitId=" << command.unitId
-				   << ", target=(" << command.targetX << "," << command.targetY << ")");
+				   << ", target=(" << command.target.x << "," << command.target.y << ")");
 
 		// Находим сущность по externalId
 		sw::ecs::Entity* targetEntity = world.GetEntityByExternalId(command.unitId);
@@ -229,17 +227,15 @@ namespace sw
 		if (!movementTarget)
 		{
 			auto& newMovementTarget = targetEntity->AddComponent<sw::ecs::MovementTargetComponent>();
-			newMovementTarget.targetX = command.targetX;
-			newMovementTarget.targetY = command.targetY;
+			newMovementTarget.target = command.target;
 		}
 		else
 		{
-			movementTarget->targetX = command.targetX;
-			movementTarget->targetY = command.targetY;
+			movementTarget->target = command.target;
 		}
 
 		// Логируем начало движения
-		EventSystemManager::Get().GetEventSystem().LogMarchStarted(command.unitId, position->x, position->y, command.targetX, command.targetY);
+		EventSystemManager::Get().GetEventSystem().LogMarchStarted(command.unitId, position->position, command.target);
 
 		DEBUG_LOG("Set movement target for entity " << targetEntity->GetId());
 	}

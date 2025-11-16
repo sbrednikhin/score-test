@@ -114,7 +114,7 @@ namespace sw::ecs
 		}
 
 		// Проверяем, достигли ли уже цели
-		if (position->x == movementTarget->targetX && position->y == movementTarget->targetY)
+		if (position->position == movementTarget->target)
 		{
 			// Удаляем компонент цели при достижении
 			entity->RemoveComponent<MovementTargetComponent>();
@@ -130,8 +130,7 @@ namespace sw::ecs
 		}
 
 		// Ищем лучшую соседнюю клетку для приближения к цели
-		int32_t bestX = position->x;
-		int32_t bestY = position->y;
+		sw::Vec2 bestPosition = position->position;
 		double bestDistance = std::numeric_limits<double>::max();
 
 		// Проверяем все 8 возможных направлений движения
@@ -142,55 +141,52 @@ namespace sw::ecs
 				// Пропускаем текущую позицию
 				if (dx == 0 && dy == 0) continue;
 
-				int32_t candidateX = position->x + dx;
-				int32_t candidateY = position->y + dy;
+				sw::Vec2 candidatePosition = position->position + sw::Vec2{dx, dy};
 
 				// Проверяем границы карты (простая проверка на неотрицательные координаты)
 				// TODO: Добавить проверку границ карты через MapService
-				if (candidateX < 0 || candidateY < 0)
+				if (candidatePosition.x < 0 || candidatePosition.y < 0)
 				{
 					continue; // Отрицательные координаты не допускаем
 				}
 
 				// Проверяем, что клетка свободна
-				if (mapService->IsCellOccupied(candidateX, candidateY))
+				if (mapService->IsCellOccupied(candidatePosition))
 				{
 					continue; // Клетка занята
 				}
 
 				// Вычисляем расстояние от кандидата до цели
+				sw::Vec2 diff = candidatePosition - movementTarget->target;
 				double distanceToTarget = std::sqrt(
-					std::pow(candidateX - movementTarget->targetX, 2) +
-					std::pow(candidateY - movementTarget->targetY, 2)
+					std::pow(diff.x, 2) + std::pow(diff.y, 2)
 				);
 
 				// Если это лучшее расстояние, запоминаем клетку
 				if (distanceToTarget < bestDistance)
 				{
 					bestDistance = distanceToTarget;
-					bestX = candidateX;
-					bestY = candidateY;
+					bestPosition = candidatePosition;
 				}
 			}
 		}
 
 		// Если не нашли подходящую клетку, не двигаемся
-		if (bestX == position->x && bestY == position->y)
+		if (bestPosition == position->position)
 		{
 			return false;
 		}
 
-		int32_t newX = bestX;
-		int32_t newY = bestY;
+		sw::Vec2 newPosition = bestPosition;
 
 		// Логируем перемещение
 		auto* externalId = entity->GetComponent<ExternalIdComponent>();
 		if (externalId)
 		{
-			EventSystemManager::Get().GetEventSystem().LogUnitMoved(externalId->externalId, newX, newY);
+			EventSystemManager::Get().GetEventSystem().LogUnitMoved(externalId->externalId, newPosition);
 		}
 
 		// Перемещаем сущность на новую позицию
-		return WorldHelper::MoveEntityTo(world, entity, newX, newY);
+		return WorldHelper::MoveEntityTo(world, entity, newPosition.x, newPosition.y);
 	}
 }

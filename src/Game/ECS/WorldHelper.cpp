@@ -32,7 +32,7 @@ namespace sw::ecs
 		}
 
 		// Если позиция не изменилась, ничего не делаем
-		if (position->x == newX && position->y == newY)
+		if (position->position.x == newX && position->position.y == newY)
 		{
 			return true;
 		}
@@ -45,26 +45,25 @@ namespace sw::ecs
 		}
 
 		// Освобождаем старую клетку
-		bool freed = mapService->FreeCell(position->x, position->y);
+		bool freed = mapService->FreeCell(position->position);
 		if (!freed)
 		{
-			DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ")");
+			DEBUG_LOG("Warning: Failed to free cell (" << position->position.x << "," << position->position.y << ")");
 			// Продолжаем, так как это может быть нормально в некоторых случаях
 		}
 
 		// Занимаем новую клетку
-		bool occupied = mapService->OccupyCell(newX, newY, entity);
+		bool occupied = mapService->OccupyCell({newX, newY}, entity);
 		if (!occupied)
 		{
 			DEBUG_LOG("Warning: Failed to occupy cell (" << newX << "," << newY << ")");
 			// Пытаемся вернуть старую клетку
-			mapService->OccupyCell(position->x, position->y, entity);
+			mapService->OccupyCell(position->position, entity);
 			return false;
 		}
 
 		// Обновляем позицию сущности
-		position->x = newX;
-		position->y = newY;
+		position->position = {newX, newY};
 
 		DEBUG_LOG("Entity " << entity->GetId() << " moved to (" << newX << "," << newY << ")");
 

@@ -37,7 +37,7 @@ namespace sw::ecs
 		return nullptr;
 	}
 
-	bool MapService::OccupyCell(int32_t x, int32_t y, Entity* entity)
+	bool MapService::OccupyCell(sw::Vec2 position, Entity* entity)
 	{
 		auto* mapComponent = GetMapComponent();
 		if (!mapComponent || !entity)
@@ -46,25 +46,24 @@ namespace sw::ecs
 		}
 
 		// Проверяем границы
-		if (x < 0 || x >= mapComponent->width || y < 0 || y >= mapComponent->height)
+		if (position.x < 0 || position.x >= mapComponent->width || position.y < 0 || position.y >= mapComponent->height)
 		{
 			return false;
 		}
 
-		auto key = std::make_pair(x, y);
 
 		// Проверяем, не занята ли уже ячейка
-		if (mapComponent->cells.find(key) != mapComponent->cells.end())
+		if (mapComponent->cells.find(position) != mapComponent->cells.end())
 		{
 			return false; // Ячейка уже занята
 		}
 
 		// Занимаем ячейку
-		mapComponent->cells[key].entityId = entity->GetId();
+		mapComponent->cells[position].entityId = entity->GetId();
 		return true;
 	}
 
-	bool MapService::FreeCell(int32_t x, int32_t y)
+	bool MapService::FreeCell(sw::Vec2 position)
 	{
 		auto* mapComponent = GetMapComponent();
 		if (!mapComponent)
@@ -73,13 +72,12 @@ namespace sw::ecs
 		}
 
 		// Проверяем границы
-		if (x < 0 || x >= mapComponent->width || y < 0 || y >= mapComponent->height)
+		if (position.x < 0 || position.x >= mapComponent->width || position.y < 0 || position.y >= mapComponent->height)
 		{
 			return false;
 		}
 
-		auto key = std::make_pair(x, y);
-		auto it = mapComponent->cells.find(key);
+		auto it = mapComponent->cells.find(position);
 
 		if (it == mapComponent->cells.end())
 		{
@@ -91,7 +89,7 @@ namespace sw::ecs
 		return true;
 	}
 
-	bool MapService::IsCellOccupied(int32_t x, int32_t y) const
+	bool MapService::IsCellOccupied(sw::Vec2 position) const
 	{
 		auto* mapComponent = GetMapComponent();
 		if (!mapComponent)
@@ -100,18 +98,17 @@ namespace sw::ecs
 		}
 
 		// Проверяем границы
-		if (x < 0 || x >= mapComponent->width || y < 0 || y >= mapComponent->height)
+		if (position.x < 0 || position.x >= mapComponent->width || position.y < 0 || position.y >= mapComponent->height)
 		{
 			return false;
 		}
 
-		auto key = std::make_pair(x, y);
-		auto it = mapComponent->cells.find(key);
+		auto it = mapComponent->cells.find(position);
 
 		return it != mapComponent->cells.end(); // Занята если существует в мапе
 	}
 
-	Entity* MapService::GetEntityAtCell(int32_t x, int32_t y) const
+	Entity* MapService::GetEntityAtCell(sw::Vec2 position) const
 	{
 		auto* mapComponent = GetMapComponent();
 		if (!mapComponent)
@@ -120,13 +117,12 @@ namespace sw::ecs
 		}
 
 		// Проверяем границы
-		if (x < 0 || x >= mapComponent->width || y < 0 || y >= mapComponent->height)
+		if (position.x < 0 || position.x >= mapComponent->width || position.y < 0 || position.y >= mapComponent->height)
 		{
 			return nullptr;
 		}
 
-		auto key = std::make_pair(x, y);
-		auto it = mapComponent->cells.find(key);
+		auto it = mapComponent->cells.find(position);
 
 		if (it != mapComponent->cells.end())
 		{
@@ -136,7 +132,7 @@ namespace sw::ecs
 		return nullptr;
 	}
 
-	std::vector<Entity*> MapService::GetEntitiesInRadius(int32_t centerX, int32_t centerY, int32_t radius, bool includeCenter) const
+	std::vector<Entity*> MapService::GetEntitiesInRadius(sw::Vec2 center, int32_t radius, bool includeCenter) const
 	{
 		std::vector<Entity*> result;
 
@@ -152,10 +148,10 @@ namespace sw::ecs
 				if (!includeCenter && dx == 0 && dy == 0)
 					continue;
 
-				int32_t x = centerX + dx;
-				int32_t y = centerY + dy;
+				int32_t x = center.x + dx;
+				int32_t y = center.y + dy;
 
-				Entity* entity = GetEntityAtCell(x, y);
+				Entity* entity = GetEntityAtCell({x, y});
 				if (entity)
 				{
 					result.push_back(entity);

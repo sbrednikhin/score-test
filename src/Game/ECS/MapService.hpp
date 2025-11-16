@@ -3,6 +3,7 @@
 #include "SystemBase.hpp"
 #include "Entity.hpp"
 #include "Components.hpp"
+#include <Vec2.hpp>
 #include <vector>
 
 namespace sw::ecs
@@ -20,13 +21,13 @@ namespace sw::ecs
 		void SetMapEntity(Entity* mapEntity);
 
 		// Методы работы с сеткой карты
-		bool OccupyCell(int32_t x, int32_t y, Entity* entity);
-		bool FreeCell(int32_t x, int32_t y);
-		bool IsCellOccupied(int32_t x, int32_t y) const;
-		Entity* GetEntityAtCell(int32_t x, int32_t y) const;
+		bool OccupyCell(sw::Vec2 position, Entity* entity);
+		bool FreeCell(sw::Vec2 position);
+		bool IsCellOccupied(sw::Vec2 position) const;
+		Entity* GetEntityAtCell(sw::Vec2 position) const;
 
 		// Методы поиска сущностей в радиусе
-		std::vector<Entity*> GetEntitiesInRadius(int32_t centerX, int32_t centerY, int32_t radius, bool includeCenter = false) const;
+		std::vector<Entity*> GetEntitiesInRadius(sw::Vec2 center, int32_t radius, bool includeCenter = false) const;
 
 		// Методы поиска сущностей в радиусе с фильтрацией по компонентам
 		template<typename... Components>
@@ -47,10 +48,10 @@ namespace sw::ecs
 					if (std::abs(dx) + std::abs(dy) > radius)
 						continue;
 
-					int32_t x = position->x + dx;
-					int32_t y = position->y + dy;
+					int32_t x = position->position.x + dx;
+					int32_t y = position->position.y + dy;
 
-					Entity* entity = GetEntityAtCell(x, y);
+					Entity* entity = GetEntityAtCell({x, y});
 					if (entity && entity != centerEntity && (entity->GetComponent<Components>() && ...))
 					{
 						result.push_back(entity);
@@ -80,10 +81,10 @@ namespace sw::ecs
 					// Проверяем, что расстояние в заданном диапазоне
 					if (distance >= minRadius && distance <= maxRadius)
 					{
-						int32_t x = position->x + dx;
-						int32_t y = position->y + dy;
+						int32_t x = position->position.x + dx;
+						int32_t y = position->position.y + dy;
 
-						Entity* entity = GetEntityAtCell(x, y);
+						Entity* entity = GetEntityAtCell({x, y});
 						if (entity && (entity->GetComponent<Components>() && ...))
 						{
 							result.push_back(entity);

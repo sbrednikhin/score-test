@@ -18,10 +18,10 @@ namespace sw
 	const GameLogic& GetGameLogic() const override;
 
 		void LogMapCreated(uint32_t width, uint32_t height) override;
-		void LogUnitSpawned(uint32_t unitId, const char* unitType, uint32_t x, uint32_t y) override;
-		void LogMarchStarted(uint32_t unitId, uint32_t fromX, uint32_t fromY, uint32_t toX, uint32_t toY) override;
-		void LogMarchEnded(uint32_t unitId, uint32_t x, uint32_t y) override;
-		void LogUnitMoved(uint32_t unitId, uint32_t x, uint32_t y) override;
+		void LogUnitSpawned(uint32_t unitId, const char* unitType, sw::Vec2 position) override;
+		void LogMarchStarted(uint32_t unitId, sw::Vec2 from, sw::Vec2 to) override;
+		void LogMarchEnded(uint32_t unitId, sw::Vec2 position) override;
+		void LogUnitMoved(uint32_t unitId, sw::Vec2 position) override;
 		void LogUnitAttacked(uint32_t attackerId, uint32_t targetId, uint32_t damage, uint32_t targetHp) override;
 		void LogUnitDied(uint32_t unitId) override;
 

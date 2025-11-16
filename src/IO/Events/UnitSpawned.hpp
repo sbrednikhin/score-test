@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Vec2.hpp>
 #include <cstdint>
 #include <string>
 
@@ -11,16 +12,15 @@ namespace sw::io
 
 		uint32_t unitId{};
 		std::string unitType{};
-		uint32_t x{};
-		uint32_t y{};
+		sw::Vec2 position{};
 
 		template <typename Visitor>
 		void visit(Visitor& visitor)
 		{
 			visitor.visit("unitId", unitId);
 			visitor.visit("unitType", unitType);
-			visitor.visit("x", x);
-			visitor.visit("y", y);
+			visitor.visit("x", position.x);
+			visitor.visit("y", position.y);
 		}
 	};
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Vec2.hpp>
 #include <cstdint>
 
 namespace sw
@@ -17,10 +18,10 @@ namespace sw
 
 		// Универсальный интерфейс для логирования событий
 		virtual void LogMapCreated(uint32_t width, uint32_t height) = 0;
-		virtual void LogUnitSpawned(uint32_t unitId, const char* unitType, uint32_t x, uint32_t y) = 0;
-		virtual void LogMarchStarted(uint32_t unitId, uint32_t fromX, uint32_t fromY, uint32_t toX, uint32_t toY) = 0;
-		virtual void LogMarchEnded(uint32_t unitId, uint32_t x, uint32_t y) = 0;
-		virtual void LogUnitMoved(uint32_t unitId, uint32_t x, uint32_t y) = 0;
+		virtual void LogUnitSpawned(uint32_t unitId, const char* unitType, sw::Vec2 position) = 0;
+		virtual void LogMarchStarted(uint32_t unitId, sw::Vec2 from, sw::Vec2 to) = 0;
+		virtual void LogMarchEnded(uint32_t unitId, sw::Vec2 position) = 0;
+		virtual void LogUnitMoved(uint32_t unitId, sw::Vec2 position) = 0;
 		virtual void LogUnitAttacked(uint32_t attackerId, uint32_t targetId, uint32_t damage, uint32_t targetHp) = 0;
 		virtual void LogUnitDied(uint32_t unitId) = 0;
 	};

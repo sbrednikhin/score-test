@@ -48,28 +48,28 @@ namespace sw::ecs
 				continue;
 
 			// Проверяем, не занята ли уже клетка
-			if (!mapService->IsCellOccupied(position->x, position->y))
+			if (!mapService->IsCellOccupied(position->position))
 			{
-				bool occupied = mapService->OccupyCell(position->x, position->y, entity);
+				bool occupied = mapService->OccupyCell(position->position, entity);
 				if (occupied)
 				{
 					DEBUG_LOG("PositionSystem: [PreUpdate] Added entity " << entity->GetId()
-							  << " to map at (" << position->x << "," << position->y << ")");
+							  << " to map at (" << position->position.x << "," << position->position.y << ")");
 				}
 				else
 				{
 					DEBUG_LOG("Warning: PositionSystem [PreUpdate] failed to occupy cell ("
-							  << position->x << "," << position->y << ") for entity " << entity->GetId());
+							  << position->position.x << "," << position->position.y << ") for entity " << entity->GetId());
 				}
 			}
 			else
 			{
 				// Клетка занята - это может быть нормально, если сущность уже была добавлена
 				// или если несколько сущностей пытаются занять одну клетку
-				Entity* occupyingEntity = mapService->GetEntityAtCell(position->x, position->y);
+				Entity* occupyingEntity = mapService->GetEntityAtCell(position->position);
 				if (occupyingEntity != entity)
 				{
-					DEBUG_LOG("Warning: PositionSystem [PreUpdate] Cell (" << position->x << "," << position->y
+					DEBUG_LOG("Warning: PositionSystem [PreUpdate] Cell (" << position->position.x << "," << position->position.y
 							  << ") already occupied by entity " << occupyingEntity->GetId()
 							  << ", cannot place entity " << entity->GetId());
 				}
@@ -92,16 +92,16 @@ namespace sw::ecs
 				continue;
 
 			// Освобождаем клетку
-			bool freed = mapService->FreeCell(position->x, position->y);
+			bool freed = mapService->FreeCell(position->position);
 			if (freed)
 			{
 				DEBUG_LOG("PositionSystem: [PostUpdate] Removed entity " << entity->GetId()
-						  << " from map at (" << position->x << "," << position->y << ")");
+						  << " from map at (" << position->position.x << "," << position->position.y << ")");
 			}
 			else
 			{
 				DEBUG_LOG("Warning: PositionSystem [PostUpdate] failed to free cell ("
-						  << position->x << "," << position->y << ") for entity " << entity->GetId());
+						  << position->position.x << "," << position->position.y << ") for entity " << entity->GetId());
 			}
 		}
 	}

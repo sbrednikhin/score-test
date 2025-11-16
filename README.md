@@ -41,6 +41,7 @@ build\Debug\sw_battle_test.exe commands_example.txt
 ```
 src/
 ├── main.cpp              # Точка входа
+├── Vec2.hpp              # Структура для работы с 2D координатами
 ├── Game/
 │   ├── ECS/              # Entity-Component-System
 │   │   ├── PositionSystem.*   # Управление позициями на карте
@@ -70,7 +71,7 @@ void CommandManager::ProcessSpawnArcher(const sw::io::SpawnArcher& command) {
 
     // Компоненты
     auto& position = archerEntity->AddComponent<sw::ecs::PositionComponent>();
-    position.x = command.x; position.y = command.y;
+    position.position = command.position;
 
     // Поведения
     auto& behaviour = archerEntity->AddComponent<sw::ecs::BehaviourComponent>();
@@ -156,7 +157,7 @@ public:
     explicit AIService(const World& world) : ServiceBase(world) {}
     bool IsReady() const override { return true; }
 
-    void CalculatePath(Entity* entity, int32_t targetX, int32_t targetY) {
+    void CalculatePath(Entity* entity, sw::Vec2 target) {
         // Логика расчета пути
     }
 };

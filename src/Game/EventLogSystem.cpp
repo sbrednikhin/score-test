@@ -29,35 +29,35 @@ namespace sw
 		}
 	}
 
-	void EventLogSystem::LogUnitSpawned(uint32_t unitId, const char* unitType, uint32_t x, uint32_t y)
+	void EventLogSystem::LogUnitSpawned(uint32_t unitId, const char* unitType, sw::Vec2 position)
 	{
 		if (_eventLog)
 		{
-			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitSpawned{ unitId, unitType, x, y });
+			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitSpawned{ unitId, unitType, position });
 		}
 	}
 
-	void EventLogSystem::LogMarchStarted(uint32_t unitId, uint32_t fromX, uint32_t fromY, uint32_t toX, uint32_t toY)
+	void EventLogSystem::LogMarchStarted(uint32_t unitId, sw::Vec2 from, sw::Vec2 to)
 	{
 		if (_eventLog)
 		{
-			_eventLog->log(_gameLogic.GetCurrentTick(), io::MarchStarted{ unitId, fromX, fromY, toX, toY });
+			_eventLog->log(_gameLogic.GetCurrentTick(), io::MarchStarted{ unitId, from, to });
 		}
 	}
 
-	void EventLogSystem::LogMarchEnded(uint32_t unitId, uint32_t x, uint32_t y)
+	void EventLogSystem::LogMarchEnded(uint32_t unitId, sw::Vec2 position)
 	{
 		if (_eventLog)
 		{
-			_eventLog->log(_gameLogic.GetCurrentTick(), io::MarchEnded{ unitId, x, y });
+			_eventLog->log(_gameLogic.GetCurrentTick(), io::MarchEnded{ unitId, position });
 		}
 	}
 
-	void EventLogSystem::LogUnitMoved(uint32_t unitId, uint32_t x, uint32_t y)
+	void EventLogSystem::LogUnitMoved(uint32_t unitId, sw::Vec2 position)
 	{
 		if (_eventLog)
 		{
-			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitMoved{ unitId, x, y });
+			_eventLog->log(_gameLogic.GetCurrentTick(), io::UnitMoved{ unitId, position });
 		}
 	}
 
