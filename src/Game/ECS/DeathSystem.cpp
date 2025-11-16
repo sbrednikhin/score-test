@@ -8,21 +8,16 @@ namespace sw::ecs
 {
     void DeathSystem::ProcessWorld(World& world)
     {
-        // Получаем все сущности с HealthComponent
-        std::vector<Entity*> entities = world.GetEntitiesWith<HealthComponent>();
-
-        for (auto* entity : entities)
+        // Получаем все сущности с HealthComponent, но без AliveComponent (мертвые)
+        std::vector<Entity*> allWithHealth = world.GetEntitiesWith<HealthComponent>();
+        for (auto* entity : allWithHealth)
         {
-            // Проверяем, мертва ли сущность и не помечена ли уже на уничтожение
-            if (!WorldHelper::IsAlive(*entity) && !entity->IsMarkedForDestruction())
+            if (!entity->GetComponent<AliveComponent>())
             {
-                DEBUG_LOG("DeathSystem: Marking entity " << entity->GetId() << " for destruction");
+                DEBUG_LOG("DeathSystem: Marking dead entity " << entity->GetId() << " for destruction");
 
-                // Помечаем сущность на уничтожение
+                // Помечаем мертвую сущность на уничтожение
                 world.MarkEntityForDestruction(entity->GetId());
-
-                // Здесь можно добавить дополнительную логику обработки смерти:
-                // - Отправка событий и т.д.
             }
         }
     }

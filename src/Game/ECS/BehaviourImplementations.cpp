@@ -29,48 +29,25 @@ namespace sw::ecs
             return false;
         }
 
-        auto nearbyEntities = mapService->GetEntitiesInRadius(position->x, position->y, 1, false);
-
-        // Фильтруем только живых юнитов (кроме себя)
-        std::vector<Entity*> aliveNearbyEntities;
-        for (auto* targetEntity : nearbyEntities)
-        {
-            if (targetEntity != entity && WorldHelper::IsAlive(*targetEntity))
-            {
-                aliveNearbyEntities.push_back(targetEntity);
-            }
-        }
+        // Получаем только живых юнитов в радиусе 1 (кроме себя)
+        auto nearbyTargets = mapService->GetEntitiesInRadiusWith<AliveComponent>(entity, 1);
 
         // Если нет целей поблизости, атака не удалась
-        if (aliveNearbyEntities.empty())
+        if (nearbyTargets.empty())
         {
             DEBUG_LOG("MeleeAttack: Entity " << entity->GetId() << " found no targets nearby");
             return false;
         }
 
         // Выбираем случайную цель
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(0, aliveNearbyEntities.size() - 1);
-        Entity* target = aliveNearbyEntities[distrib(gen)];
+        Entity* target = WorldHelper::SelectRandomTarget(nearbyTargets);
+        if (!target)
+        {
+            return false; // Не должно случиться, но на всякий случай
+        }
 
         // Наносим урон
-        auto* targetHealth = target->GetComponent<HealthComponent>();
-        if (targetHealth)
-        {
-            int32_t damage = strength->strength;
-            targetHealth->health -= damage;
-
-            DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId()
-                      << " attacked Entity " << target->GetId()
-                      << " for " << damage << " damage (health now: " << targetHealth->health << ")");
-
-            // Если цель умерла, логируем это
-            if (targetHealth->health <= 0)
-            {
-                DEBUG_LOG("SwordsmanMeleeAttack: Entity " << target->GetId() << " died from attack");
-            }
-        }
+        WorldHelper::DealDamage(target, strength->strength, "MeleeAttack");
 
         return true; // Атака удалась
     }
@@ -80,12 +57,11 @@ namespace sw::ecs
     {
         DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " attempting range attack");
 
-        // Получаем позицию, ловкость и дальность атаки
-        auto* position = entity->GetComponent<PositionComponent>();
+        // Получаем ловкость и дальность атаки
         auto* agility = entity->GetComponent<AgilityComponent>();
         auto* range = entity->GetComponent<RangeComponent>();
 
-        if (!position || !agility || !range)
+        if (!agility || !range)
         {
             return false; // Не можем атаковать без необходимых компонентов
         }
@@ -96,29 +72,16 @@ namespace sw::ecs
             return false;
         }
 
-        // Проверяем, что в соседних клетках нет юнитов (радиус 1)
-        auto nearbyEntities = mapService->GetEntitiesInRadius(position->x, position->y, 1, false);
-        for (auto* neighborEntity : nearbyEntities)
+        // Проверяем, что в соседних клетках нет живых юнитов (радиус 1)
+        auto nearbyAliveEntities = mapService->GetEntitiesInRadiusWith<AliveComponent>(entity, 1);
+        if (!nearbyAliveEntities.empty())
         {
-            if (WorldHelper::IsAlive(*neighborEntity))
-            {
-                DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " cannot shoot - enemy nearby");
-                return false;
-            }
+            DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " cannot shoot - enemy nearby");
+            return false;
         }
 
-        // Находим всех юнитов на расстоянии от 2 до Range клеток
-        auto distantEntities = mapService->GetEntitiesInRange(position->x, position->y, 2, range->range);
-
-        // Фильтруем только живых юнитов
-        std::vector<Entity*> aliveDistantEntities;
-        for (auto* targetEntity : distantEntities)
-        {
-            if (WorldHelper::IsAlive(*targetEntity))
-            {
-                aliveDistantEntities.push_back(targetEntity);
-            }
-        }
+        // Находим всех живых юнитов на расстоянии от 2 до Range клеток
+        auto aliveDistantEntities = mapService->GetEntitiesInRangeWith<AliveComponent>(entity, 2, range->range);
 
         // Если нет целей в радиусе атаки, атака не удалась
         if (aliveDistantEntities.empty())
@@ -128,28 +91,14 @@ namespace sw::ecs
         }
 
         // Выбираем случайную цель
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(0, aliveDistantEntities.size() - 1);
-        Entity* target = aliveDistantEntities[distrib(gen)];
+        Entity* target = WorldHelper::SelectRandomTarget(aliveDistantEntities);
+        if (!target)
+        {
+            return false; // Не должно случиться, но на всякий случай
+        }
 
         // Наносим урон (Agility)
-        auto* targetHealth = target->GetComponent<HealthComponent>();
-        if (targetHealth)
-        {
-            int32_t damage = agility->agility;
-            targetHealth->health -= damage;
-
-            DEBUG_LOG("RangeAttack: Entity " << entity->GetId()
-                      << " shot Entity " << target->GetId()
-                      << " for " << damage << " damage (health now: " << targetHealth->health << ")");
-
-            // Если цель умерла, логируем это
-            if (targetHealth->health <= 0)
-            {
-                DEBUG_LOG("RangeAttack: Entity " << target->GetId() << " died from range attack");
-            }
-        }
+        WorldHelper::DealDamage(target, agility->agility, "RangeAttack");
 
         return true; // Атака удалась
     }

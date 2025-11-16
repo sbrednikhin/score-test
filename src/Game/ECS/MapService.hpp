@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System.hpp"
+#include "SystemBase.hpp"
 #include "Entity.hpp"
 #include "Components.hpp"
 #include <memory>
@@ -28,7 +28,73 @@ namespace sw::ecs
 
         // Методы поиска сущностей в радиусе
         std::vector<Entity*> GetEntitiesInRadius(int32_t centerX, int32_t centerY, int32_t radius, bool includeCenter = false) const;
-        std::vector<Entity*> GetEntitiesInRange(int32_t centerX, int32_t centerY, int32_t minRadius, int32_t maxRadius) const;
+
+        // Методы поиска сущностей в радиусе с фильтрацией по компонентам
+        template<typename... Components>
+        std::vector<Entity*> GetEntitiesInRadiusWith(Entity* centerEntity, int32_t radius) const
+        {
+            std::vector<Entity*> result;
+
+            if (!centerEntity) return result;
+
+            auto* position = centerEntity->GetComponent<PositionComponent>();
+            if (!position) return result;
+
+            for (int32_t dx = -radius; dx <= radius; ++dx)
+            {
+                for (int32_t dy = -radius; dy <= radius; ++dy)
+                {
+                    // Проверяем, находится ли клетка в радиусе (манхэттенское расстояние)
+                    if (std::abs(dx) + std::abs(dy) > radius)
+                        continue;
+
+                    int32_t x = position->x + dx;
+                    int32_t y = position->y + dy;
+
+                    Entity* entity = GetEntityAtCell(x, y);
+                    if (entity && entity != centerEntity && (entity->GetComponent<Components>() && ...))
+                    {
+                        result.push_back(entity);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        template<typename... Components>
+        std::vector<Entity*> GetEntitiesInRangeWith(Entity* centerEntity, int32_t minRadius, int32_t maxRadius) const
+        {
+            std::vector<Entity*> result;
+
+            if (!centerEntity) return result;
+
+            auto* position = centerEntity->GetComponent<PositionComponent>();
+            if (!position) return result;
+
+            for (int32_t dx = -maxRadius; dx <= maxRadius; ++dx)
+            {
+                for (int32_t dy = -maxRadius; dy <= maxRadius; ++dy)
+                {
+                    int32_t distance = std::abs(dx) + std::abs(dy);
+
+                    // Проверяем, что расстояние в заданном диапазоне
+                    if (distance >= minRadius && distance <= maxRadius)
+                    {
+                        int32_t x = position->x + dx;
+                        int32_t y = position->y + dy;
+
+                        Entity* entity = GetEntityAtCell(x, y);
+                        if (entity && (entity->GetComponent<Components>() && ...))
+                        {
+                            result.push_back(entity);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
 
     private:
         // Сущность карты

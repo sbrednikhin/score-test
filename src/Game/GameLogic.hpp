@@ -5,7 +5,7 @@
 #include "CommandManager.hpp"
 #include "ManagerBase.hpp"
 #include "ICommandSource.hpp"
-#include "ECS/IExternalEventSystem.hpp"
+#include "IExternalEventSystem.hpp"
 
 namespace sw
 {

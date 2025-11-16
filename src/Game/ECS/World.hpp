@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Entity.hpp"
-#include "System.hpp"
+#include "SystemBase.hpp"
 #include <memory>
 #include <vector>
 #include <unordered_map>

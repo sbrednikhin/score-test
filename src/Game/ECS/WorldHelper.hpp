@@ -10,9 +10,6 @@ namespace sw::ecs
     class WorldHelper
     {
     public:
-        // Проверка, жива ли сущность (health > 0)
-        static bool IsAlive(const Entity& entity);
-
         // Сортировка вектора сущностей по ID
         static void SortEntitiesById(std::vector<Entity*>& entities);
 
@@ -21,5 +18,11 @@ namespace sw::ecs
 
         // Проверка, есть ли в мире активные сущности (с активными поведениями)
         static bool HasActiveEntities(const World& world);
+
+        // Нанесение урона сущности с логированием
+        static void DealDamage(Entity* target, int32_t damage, const char* attackerName);
+
+        // Выбор случайной цели из списка
+        static Entity* SelectRandomTarget(const std::vector<Entity*>& targets);
     };
 }

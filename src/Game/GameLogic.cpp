@@ -1,6 +1,6 @@
 #include "GameLogic.hpp"
 #include "EventLogger.hpp"
-#include "ECS/EventLogSystem.hpp"
+#include "EventLogSystem.hpp"
 #include "ECS/WorldHelper.hpp"
 
 namespace sw

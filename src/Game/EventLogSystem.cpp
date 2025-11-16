@@ -1,5 +1,5 @@
 #include "EventLogSystem.hpp"
-#include "../GameLogic.hpp"
+#include "GameLogic.hpp"
 #include <IO/Events/MapCreated.hpp>
 #include <IO/Events/UnitSpawned.hpp>
 #include <IO/Events/MarchStarted.hpp>

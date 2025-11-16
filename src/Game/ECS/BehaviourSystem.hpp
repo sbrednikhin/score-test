@@ -1,6 +1,6 @@
 #pragma once
 
-#include "System.hpp"
+#include "SystemBase.hpp"
 
 namespace sw::ecs
 {

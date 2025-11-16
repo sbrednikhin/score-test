@@ -4,16 +4,10 @@
 #include "MapService.hpp"
 #include "Debug.hpp"
 #include <algorithm>
+#include <random>
 
 namespace sw::ecs
 {
-    bool WorldHelper::IsAlive(const Entity& entity)
-    {
-        auto health = entity.GetComponent<HealthComponent>();
-        return health && health->health > 0;
-    }
-
-
     void WorldHelper::SortEntitiesById(std::vector<Entity*>& entities)
     {
         std::sort(entities.begin(), entities.end(),
@@ -92,5 +86,45 @@ namespace sw::ecs
         }
 
         return false;
+    }
+
+    void WorldHelper::DealDamage(Entity* target, int32_t damage, const char* attackerName)
+    {
+        if (!target || damage <= 0)
+        {
+            return;
+        }
+
+        auto* targetHealth = target->GetComponent<HealthComponent>();
+        if (targetHealth)
+        {
+            targetHealth->health -= damage;
+
+            DEBUG_LOG(attackerName << " attacked Entity " << target->GetId()
+                      << " for " << damage << " damage (health now: " << targetHealth->health << ")");
+
+            // Если цель умерла, удаляем AliveComponent
+            if (targetHealth->health <= 0)
+            {
+                if (target->GetComponent<AliveComponent>())
+                {
+                    target->RemoveComponent<AliveComponent>();
+                    DEBUG_LOG("Entity " << target->GetId() << " died from " << attackerName << " attack");
+                }
+            }
+        }
+    }
+
+    Entity* WorldHelper::SelectRandomTarget(const std::vector<Entity*>& targets)
+    {
+        if (targets.empty())
+        {
+            return nullptr;
+        }
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(0, targets.size() - 1);
+        return targets[distrib(gen)];
     }
 }

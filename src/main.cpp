@@ -8,7 +8,7 @@
 #include <IO/System/EventLog.hpp>
 #include <Game/GameLogic.hpp>
 #include <Game/FileCommandSource.hpp>
-#include <Game/ECS/EventLogSystem.hpp>
+#include <Game/EventLogSystem.hpp>
 #include "Debug.hpp"
 
 int main(int argc, char** argv)

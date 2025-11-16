@@ -11,6 +11,7 @@ namespace sw::ecs
         Strength,
         MovementTarget,
         Health,
+        Alive,
         Behaviour,
         Map,
         Agility,

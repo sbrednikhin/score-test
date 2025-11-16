@@ -116,6 +116,9 @@ namespace sw
         auto& health = swordsmanEntity->AddComponent<sw::ecs::HealthComponent>();
         health.health = command.hp;
 
+        // Добавляем компонент живости (сущность жива)
+        swordsmanEntity->AddComponent<sw::ecs::AliveComponent>();
+
         auto& strength = swordsmanEntity->AddComponent<sw::ecs::StrengthComponent>();
         strength.strength = command.strength;
 
@@ -156,6 +159,9 @@ namespace sw
 
         auto& health = hunterEntity->AddComponent<sw::ecs::HealthComponent>();
         health.health = command.hp;
+
+        // Добавляем компонент живости (сущность жива)
+        hunterEntity->AddComponent<sw::ecs::AliveComponent>();
 
         auto& strength = hunterEntity->AddComponent<sw::ecs::StrengthComponent>();
         strength.strength = command.strength;

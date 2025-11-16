@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ECS/IExternalEventSystem.hpp"
+#include "IExternalEventSystem.hpp"
 
 namespace sw
 {

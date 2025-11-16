@@ -8,20 +8,17 @@ namespace sw::ecs
 {
     void BehaviourSystem::ProcessWorld(World& world)
     {
-        // Получаем все сущности с компонентами BehaviourComponent и HealthComponent
-        std::vector<Entity*> entities = world.GetEntitiesWith<BehaviourComponent, HealthComponent>();
+        // Получаем все сущности с компонентами BehaviourComponent и AliveComponent
+        std::vector<Entity*> entities = world.GetEntitiesWith<BehaviourComponent, AliveComponent>();
+
+        // Сортируем сущности по ID для детерминированного порядка обновления
+        WorldHelper::SortEntitiesById(entities);
 
         for (auto* entity : entities)
         {
             auto* behaviour = entity->GetComponent<BehaviourComponent>();
             if (!behaviour || behaviour->behaviours.empty()) continue;
 
-            // Проверяем, жива ли сущность
-            if (!WorldHelper::IsAlive(*entity))
-            {
-                behaviour->is_active = false;
-                continue;
-            }
 
             // Выполняем поведения последовательно, пока первое не вернет true
             bool anyBehaviourExecuted = false;

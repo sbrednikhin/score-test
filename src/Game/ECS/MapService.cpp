@@ -166,32 +166,4 @@ namespace sw::ecs
         return result;
     }
 
-    std::vector<Entity*> MapService::GetEntitiesInRange(int32_t centerX, int32_t centerY, int32_t minRadius, int32_t maxRadius) const
-    {
-        std::vector<Entity*> result;
-
-        for (int32_t dx = -maxRadius; dx <= maxRadius; ++dx)
-        {
-            for (int32_t dy = -maxRadius; dy <= maxRadius; ++dy)
-            {
-                int32_t distance = std::abs(dx) + std::abs(dy);
-
-                // Проверяем, что расстояние в заданном диапазоне
-                if (distance >= minRadius && distance <= maxRadius)
-                {
-                    int32_t x = centerX + dx;
-                    int32_t y = centerY + dy;
-
-                    Entity* entity = GetEntityAtCell(x, y);
-                    if (entity)
-                    {
-                        result.push_back(entity);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
 }

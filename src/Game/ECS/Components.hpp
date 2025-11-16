@@ -45,6 +45,12 @@ namespace sw::ecs
         ComponentType GetType() const override { return ComponentType::Health; }
     };
 
+    // Компонент живости (наличие = сущность жива)
+    struct AliveComponent : Component
+    {
+        ComponentType GetType() const override { return ComponentType::Alive; }
+    };
+
     // Интерфейс поведения
     class IBehaviour
     {
