@@ -10,8 +10,6 @@
 
 Генерирует/обновляет проект CMake для VS 2022 x64, собирает в Debug, настраивает аргументы (`commands_example.txt`), рабочую директорию, проверяет исключения C++.
 
-### Ручная сборка (CMake)
-
 ```bash
 # Сборка проекта
 mkdir build
@@ -33,6 +31,9 @@ cmake --build . --config Debug
 
 # Запуск с логами ECS систем
 ./sw_battle_test.exe commands_example.txt 2>&1 | grep "PositionSystem\|BehaviourSystem\|DeathSystem"
+
+# Запуск примера
+build\Debug\sw_battle_test.exe commands_example.txt
 ```
 
 ## Структура проекта
@@ -42,6 +43,10 @@ src/
 ├── main.cpp              # Точка входа
 ├── Game/
 │   ├── ECS/              # Entity-Component-System
+│   │   ├── PositionSystem.*   # Управление позициями на карте
+│   │   ├── BehaviourSystem.*  # Поведение юнитов
+│   │   ├── DeathSystem.*      # Обработка смерти юнитов
+│   │   └── World.*            # Управление сущностями
 │   ├── CommandManager.*  # Обработка команд
 │   └── WorldManager.*    # Управление миром
 ├── IO/
@@ -119,7 +124,11 @@ public:
 // CombatSystem.hpp
 class CombatSystem : public ISystem {
 public:
-    void ProcessWorld(World& world) override {
+    void ProcessWorldPhase(World& world, UpdatePhase phase) override {
+        // Системы могут работать в разных фазах обновления
+        if (phase != UpdatePhase::Update)
+            return;
+
         // Логика обработки боя
         auto entities = world.GetEntitiesWith<HealthComponent, AliveComponent>();
         for (auto* entity : entities) {
@@ -131,7 +140,12 @@ public:
 // WorldManager.cpp
 _world->RegisterSystem(std::make_unique<ecs::CombatSystem>());
 ```
-Добавьте класс системы, наследующий ISystem, реализуйте ProcessWorld() и зарегистрируйте в WorldManager.
+Добавьте класс системы, наследующий ISystem, реализуйте ProcessWorldPhase() с поддержкой фаз обновления и зарегистрируйте в WorldManager.
+
+**Фазы обновления:**
+- `PreUpdate` - подготовка (добавление новых сущностей)
+- `Update` - основная логика (поведение, бой)
+- `PostUpdate` - очистка (удаление сущностей)
 
 ### Добавление нового сервиса
 
