@@ -1,6 +1,7 @@
 #include "World.hpp"
 #include "Components.hpp"
 #include "MapService.hpp"
+#include "SystemBase.hpp"
 #include <Debug.hpp>
 #include <algorithm>
 
@@ -60,16 +61,8 @@ namespace sw::ecs
 			_externalIdToEntity[externalId->externalId] = _currentInitializingEntity;
 		}
 
-		// Если у сущности есть компонент позиции, занимаем соответствующую клетку
-		auto* position = _currentInitializingEntity->GetComponent<PositionComponent>();
-		if (position)
-		{
-			auto* mapService = GetService<MapService>();
-			if (mapService)
-			{
-				mapService->OccupyCell(position->x, position->y, _currentInitializingEntity);
-			}
-		}
+		// NOTE: PositionSystem теперь отвечает за размещение сущностей на карте
+		// в фазе PreUpdate
 
 		_currentInitializingEntity = nullptr; // Очищаем указатель
 	}
@@ -126,10 +119,22 @@ namespace sw::ecs
 
 	void World::Update()
 	{
-		// Обновляем все системы
+		// PreUpdate фаза - добавление новых сущностей на карту
 		for (auto& system : _systems)
 		{
-			system->ProcessWorld(*this);
+			system->ProcessWorldPhase(*this, UpdatePhase::PreUpdate);
+		}
+
+		// Основное обновление всех систем
+		for (auto& system : _systems)
+		{
+			system->ProcessWorldPhase(*this, UpdatePhase::Update);
+		}
+
+		// PostUpdate фаза - очистка перед уничтожением сущностей
+		for (auto& system : _systems)
+		{
+			system->ProcessWorldPhase(*this, UpdatePhase::PostUpdate);
 		}
 
 		// Уничтожаем все сущности, помеченные на уничтожение
@@ -157,20 +162,8 @@ namespace sw::ecs
 			{
 				Entity* entity = it->second.get();
 
-				// Освобождаем клетку на карте перед уничтожением сущности
-				auto* position = entity->GetComponent<PositionComponent>();
-				if (position)
-				{
-					auto* mapService = GetService<MapService>();
-					if (mapService)
-					{
-						bool freed = mapService->FreeCell(position->x, position->y);
-						if (!freed)
-						{
-							DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ") for entity " << id);
-						}
-					}
-				}
+				// NOTE: PositionSystem теперь отвечает за освобождение клеток на карте
+				// в фазе PostUpdate
 
 				// Удаляем из мапы внешних ID, если есть
 				auto* externalId = entity->GetComponent<ExternalIdComponent>();

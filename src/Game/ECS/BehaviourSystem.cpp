@@ -6,8 +6,12 @@
 
 namespace sw::ecs
 {
-	void BehaviourSystem::ProcessWorld(World& world)
+	void BehaviourSystem::ProcessWorldPhase(World& world, UpdatePhase phase)
 	{
+		// BehaviourSystem работает только в фазе Update
+		if (phase != UpdatePhase::Update)
+			return;
+
 		// Получаем все сущности с компонентами BehaviourComponent и AliveComponent
 		std::vector<Entity*> entities = world.GetEntitiesWith<BehaviourComponent, AliveComponent>();
 

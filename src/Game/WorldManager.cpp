@@ -1,6 +1,7 @@
 #include "WorldManager.hpp"
 #include <Game/ECS/DeathSystem.hpp>
 #include <Game/ECS/BehaviourSystem.hpp>
+#include <Game/ECS/PositionSystem.hpp>
 #include <Game/ECS/MapService.hpp>
 
 namespace sw
@@ -19,9 +20,10 @@ namespace sw
 		// Регистрируем сервисы
 		_world->RegisterService(std::make_unique<ecs::MapService>(*_world));
 
-		// Регистрируем системы
-		_world->RegisterSystem(std::make_unique<ecs::DeathSystem>());
-		_world->RegisterSystem(std::make_unique<ecs::BehaviourSystem>());
+		// Регистрируем системы (порядок важен для фаз обновления)
+		_world->RegisterSystem(std::make_unique<ecs::PositionSystem>()); // PreUpdate/PostUpdate
+		_world->RegisterSystem(std::make_unique<ecs::DeathSystem>());    // Update
+		_world->RegisterSystem(std::make_unique<ecs::BehaviourSystem>()); // Update
 
 		// Инициализируем мир
 		_world->Initialize();

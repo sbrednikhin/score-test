@@ -10,6 +10,6 @@ namespace sw::ecs
 		DeathSystem() = default;
 		~DeathSystem() override = default;
 
-		void ProcessWorld(World& world) override;
+		void ProcessWorldPhase(World& world, UpdatePhase phase) override;
 	};
 }

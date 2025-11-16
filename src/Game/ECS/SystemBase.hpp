@@ -5,13 +5,24 @@ namespace sw::ecs
 	class Entity;
 	class World;
 
+	// Фазы обновления системы
+	enum class UpdatePhase
+	{
+		PreUpdate,  // Перед основным обновлением - для добавления новых сущностей
+		Update,     // Основное обновление
+		PostUpdate  // После основного обновления - для очистки перед уничтожением
+	};
+
 	class ISystem
 	{
 	public:
 		virtual ~ISystem() = default;
 
-		// Основной метод обработки мира
-		virtual void ProcessWorld(World& world) = 0;
+		// Основной метод обработки мира (для обратной совместимости)
+		virtual void ProcessWorld(World& world) { ProcessWorldPhase(world, UpdatePhase::Update); }
+
+		// Метод обработки с указанием фазы
+		virtual void ProcessWorldPhase(World& world, UpdatePhase phase) = 0;
 	};
 
 	class ServiceBase

@@ -5,8 +5,12 @@
 
 namespace sw::ecs
 {
-	void DeathSystem::ProcessWorld(World& world)
+	void DeathSystem::ProcessWorldPhase(World& world, UpdatePhase phase)
 	{
+		// DeathSystem работает только в фазе Update
+		if (phase != UpdatePhase::Update)
+			return;
+
 		// Получаем все сущности с HealthComponent, но без AliveComponent (мертвые)
 		std::vector<Entity*> allWithHealth = world.GetEntitiesWith<HealthComponent>();
 		for (auto* entity : allWithHealth)

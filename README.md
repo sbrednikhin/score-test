@@ -10,16 +10,29 @@
 
 Генерирует/обновляет проект CMake для VS 2022 x64, собирает в Debug, настраивает аргументы (`commands_example.txt`), рабочую директорию, проверяет исключения C++.
 
+### Ручная сборка (CMake)
+
 ```bash
-# Клонирование репозитория
-git clone <repository-url>
-cd sw_battle_test
+# Сборка проекта
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Debug
 
-# Сборка (автоматически генерирует VS проект)
-update_vs_project.bat
+# Запуск с файлом команд
+./sw_battle_test.exe ../commands_example.txt
+```
 
-# Запуск примера
-build\Debug\sw_battle_test.exe commands_example.txt
+### Отладка и логирование
+
+```bash
+# Включение DEBUG логов (в CMakeLists.txt раскомментировать)
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#     add_definitions(-DDEBUG_BUILD=1)
+# endif()
+
+# Запуск с логами ECS систем
+./sw_battle_test.exe commands_example.txt 2>&1 | grep "PositionSystem\|BehaviourSystem\|DeathSystem"
 ```
 
 ## Структура проекта
