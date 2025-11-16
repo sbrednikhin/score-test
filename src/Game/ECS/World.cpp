@@ -155,7 +155,31 @@ namespace sw::ecs
             auto it = _entitiesStorage.find(id);
             if (it != _entitiesStorage.end())
             {
-                it->second->Destroy();
+                Entity* entity = it->second.get();
+
+                // Освобождаем клетку на карте перед уничтожением сущности
+                auto* position = entity->GetComponent<PositionComponent>();
+                if (position)
+                {
+                    auto* mapService = GetService<MapService>();
+                    if (mapService)
+                    {
+                        bool freed = mapService->FreeCell(position->x, position->y);
+                        if (!freed)
+                        {
+                            DEBUG_LOG("Warning: Failed to free cell (" << position->x << "," << position->y << ") for entity " << id);
+                        }
+                    }
+                }
+
+                // Удаляем из мапы внешних ID, если есть
+                auto* externalId = entity->GetComponent<ExternalIdComponent>();
+                if (externalId)
+                {
+                    _externalIdToEntity.erase(externalId->externalId);
+                }
+
+                entity->Destroy();
                 _entitiesStorage.erase(it);
             }
         }

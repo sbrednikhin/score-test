@@ -136,4 +136,62 @@ namespace sw::ecs
         return nullptr;
     }
 
+    std::vector<Entity*> MapService::GetEntitiesInRadius(int32_t centerX, int32_t centerY, int32_t radius, bool includeCenter) const
+    {
+        std::vector<Entity*> result;
+
+        for (int32_t dx = -radius; dx <= radius; ++dx)
+        {
+            for (int32_t dy = -radius; dy <= radius; ++dy)
+            {
+                // Проверяем, находится ли клетка в радиусе (манхэттенское расстояние)
+                if (std::abs(dx) + std::abs(dy) > radius)
+                    continue;
+
+                // Пропускаем центр, если не нужно его включать
+                if (!includeCenter && dx == 0 && dy == 0)
+                    continue;
+
+                int32_t x = centerX + dx;
+                int32_t y = centerY + dy;
+
+                Entity* entity = GetEntityAtCell(x, y);
+                if (entity)
+                {
+                    result.push_back(entity);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    std::vector<Entity*> MapService::GetEntitiesInRange(int32_t centerX, int32_t centerY, int32_t minRadius, int32_t maxRadius) const
+    {
+        std::vector<Entity*> result;
+
+        for (int32_t dx = -maxRadius; dx <= maxRadius; ++dx)
+        {
+            for (int32_t dy = -maxRadius; dy <= maxRadius; ++dy)
+            {
+                int32_t distance = std::abs(dx) + std::abs(dy);
+
+                // Проверяем, что расстояние в заданном диапазоне
+                if (distance >= minRadius && distance <= maxRadius)
+                {
+                    int32_t x = centerX + dx;
+                    int32_t y = centerY + dy;
+
+                    Entity* entity = GetEntityAtCell(x, y);
+                    if (entity)
+                    {
+                        result.push_back(entity);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
 }

@@ -4,6 +4,7 @@
 #include "Entity.hpp"
 #include "Components.hpp"
 #include <memory>
+#include <vector>
 
 namespace sw::ecs
 {
@@ -24,6 +25,10 @@ namespace sw::ecs
         bool FreeCell(int32_t x, int32_t y);
         bool IsCellOccupied(int32_t x, int32_t y) const;
         Entity* GetEntityAtCell(int32_t x, int32_t y) const;
+
+        // Методы поиска сущностей в радиусе
+        std::vector<Entity*> GetEntitiesInRadius(int32_t centerX, int32_t centerY, int32_t radius, bool includeCenter = false) const;
+        std::vector<Entity*> GetEntitiesInRange(int32_t centerX, int32_t centerY, int32_t minRadius, int32_t maxRadius) const;
 
     private:
         // Сущность карты

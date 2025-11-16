@@ -22,46 +22,37 @@ namespace sw::ecs
             return false; // Не можем атаковать без позиции или силы
         }
 
-        // Находим всех юнитов в соседних клетках (8 направлений)
-        std::vector<Entity*> nearbyEntities;
+        // Находим всех юнитов в соседних клетках (радиус 1)
         auto* mapService = world.GetService<MapService>();
-
         if (!mapService)
         {
             return false;
         }
 
-        // Проверяем все 8 соседних клеток
-        for (int32_t dx = -1; dx <= 1; ++dx)
+        auto nearbyEntities = mapService->GetEntitiesInRadius(position->x, position->y, 1, false);
+
+        // Фильтруем только живых юнитов (кроме себя)
+        std::vector<Entity*> aliveNearbyEntities;
+        for (auto* targetEntity : nearbyEntities)
         {
-            for (int32_t dy = -1; dy <= 1; ++dy)
+            if (targetEntity != entity && WorldHelper::IsAlive(*targetEntity))
             {
-                if (dx == 0 && dy == 0) continue; // Пропускаем свою клетку
-
-                int32_t targetX = position->x + dx;
-                int32_t targetY = position->y + dy;
-
-                // Проверяем, есть ли юнит в этой клетке
-                Entity* targetEntity = mapService->GetEntityAtCell(targetX, targetY);
-                if (targetEntity && targetEntity != entity && WorldHelper::IsAlive(*targetEntity))
-                {
-                    nearbyEntities.push_back(targetEntity);
-                }
+                aliveNearbyEntities.push_back(targetEntity);
             }
         }
 
         // Если нет целей поблизости, атака не удалась
-        if (nearbyEntities.empty())
+        if (aliveNearbyEntities.empty())
         {
-            DEBUG_LOG("SwordsmanMeleeAttack: Entity " << entity->GetId() << " found no targets nearby");
+            DEBUG_LOG("MeleeAttack: Entity " << entity->GetId() << " found no targets nearby");
             return false;
         }
 
         // Выбираем случайную цель
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(0, nearbyEntities.size() - 1);
-        Entity* target = nearbyEntities[distrib(gen)];
+        std::uniform_int_distribution<> distrib(0, aliveNearbyEntities.size() - 1);
+        Entity* target = aliveNearbyEntities[distrib(gen)];
 
         // Наносим урон
         auto* targetHealth = target->GetComponent<HealthComponent>();
@@ -105,59 +96,32 @@ namespace sw::ecs
             return false;
         }
 
-        // Проверяем, что в соседних клетках нет юнитов (расстояние 1)
-        for (int32_t dx = -1; dx <= 1; ++dx)
+        // Проверяем, что в соседних клетках нет юнитов (радиус 1)
+        auto nearbyEntities = mapService->GetEntitiesInRadius(position->x, position->y, 1, false);
+        for (auto* neighborEntity : nearbyEntities)
         {
-            for (int32_t dy = -1; dy <= 1; ++dy)
+            if (WorldHelper::IsAlive(*neighborEntity))
             {
-                if (dx == 0 && dy == 0) continue; // Пропускаем свою клетку
-
-                int32_t neighborX = position->x + dx;
-                int32_t neighborY = position->y + dy;
-
-                // Проверяем границы карты
-                if (neighborX < 0 || neighborY < 0) continue; // Отрицательные координаты пропускаем
-
-                // Если в соседней клетке есть юнит, не можем стрелять
-                Entity* neighborEntity = mapService->GetEntityAtCell(neighborX, neighborY);
-                if (neighborEntity && WorldHelper::IsAlive(*neighborEntity))
-                {
-                    DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " cannot shoot - enemy nearby");
-                    return false;
-                }
+                DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " cannot shoot - enemy nearby");
+                return false;
             }
         }
 
         // Находим всех юнитов на расстоянии от 2 до Range клеток
-        std::vector<Entity*> distantEntities;
+        auto distantEntities = mapService->GetEntitiesInRange(position->x, position->y, 2, range->range);
 
-        // Проверяем все клетки в квадрате радиуса range
-        for (int32_t dx = -range->range; dx <= range->range; ++dx)
+        // Фильтруем только живых юнитов
+        std::vector<Entity*> aliveDistantEntities;
+        for (auto* targetEntity : distantEntities)
         {
-            for (int32_t dy = -range->range; dy <= range->range; ++dy)
+            if (WorldHelper::IsAlive(*targetEntity))
             {
-                if (dx == 0 && dy == 0) continue; // Пропускаем свою клетку
-
-                int32_t targetX = position->x + dx;
-                int32_t targetY = position->y + dy;
-
-                // Вычисляем манхэттенское расстояние
-                int32_t distance = std::abs(dx) + std::abs(dy);
-
-                // Проверяем, что расстояние от 2 до range включительно
-                if (distance >= 2 && distance <= range->range)
-                {
-                    Entity* targetEntity = mapService->GetEntityAtCell(targetX, targetY);
-                    if (targetEntity && WorldHelper::IsAlive(*targetEntity))
-                    {
-                        distantEntities.push_back(targetEntity);
-                    }
-                }
+                aliveDistantEntities.push_back(targetEntity);
             }
         }
 
         // Если нет целей в радиусе атаки, атака не удалась
-        if (distantEntities.empty())
+        if (aliveDistantEntities.empty())
         {
             DEBUG_LOG("RangeAttack: Entity " << entity->GetId() << " found no targets in range");
             return false;
@@ -166,8 +130,8 @@ namespace sw::ecs
         // Выбираем случайную цель
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(0, distantEntities.size() - 1);
-        Entity* target = distantEntities[distrib(gen)];
+        std::uniform_int_distribution<> distrib(0, aliveDistantEntities.size() - 1);
+        Entity* target = aliveDistantEntities[distrib(gen)];
 
         // Наносим урон (Agility)
         auto* targetHealth = target->GetComponent<HealthComponent>();
