@@ -3,6 +3,8 @@
 #include "MapService.hpp"
 #include "WorldHelper.hpp"
 #include "Debug.hpp"
+#include "../IExternalEventSystem.hpp"
+#include "../EventSystemManager.hpp"
 #include <cmath>
 #include <limits>
 #include <algorithm>
@@ -44,6 +46,14 @@ namespace sw::ecs
 		if (!target)
 		{
 			return false; // Не должно случиться, но на всякий случай
+		}
+
+		// Логируем атаку
+		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
+		auto* targetId = target->GetComponent<ExternalIdComponent>();
+		if (attackerId && targetId)
+		{
+			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId);
 		}
 
 		// Наносим урон
@@ -95,6 +105,14 @@ namespace sw::ecs
 		if (!target)
 		{
 			return false; // Не должно случиться, но на всякий случай
+		}
+
+		// Логируем атаку
+		auto* attackerId = entity->GetComponent<ExternalIdComponent>();
+		auto* targetId = target->GetComponent<ExternalIdComponent>();
+		if (attackerId && targetId)
+		{
+			EventSystemManager::Get().GetEventSystem().LogUnitAttacked(attackerId->externalId, targetId->externalId);
 		}
 
 		// Наносим урон (Agility)
@@ -184,6 +202,13 @@ namespace sw::ecs
 
 		int32_t newX = bestX;
 		int32_t newY = bestY;
+
+		// Логируем перемещение
+		auto* externalId = entity->GetComponent<ExternalIdComponent>();
+		if (externalId)
+		{
+			EventSystemManager::Get().GetEventSystem().LogUnitMoved(externalId->externalId, newX, newY);
+		}
 
 		// Перемещаем сущность на новую позицию
 		return WorldHelper::MoveEntityTo(world, entity, newX, newY);

@@ -93,6 +93,9 @@ namespace sw
 			mapService->SetMapEntity(mapEntity);
 		}
 
+		// Логируем создание карты
+		EventSystemManager::Get().GetEventSystem().LogMapCreated(command.width, command.height);
+
 		DEBUG_LOG("Created map entity with ID: " << mapEntity->GetId());
 	}
 
@@ -135,6 +138,9 @@ namespace sw
 
 		// Завершаем инициализацию (автоматически занимает клетку на карте)
 		world.EndEntityInitialization();
+
+		// Логируем создание юнита
+		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Swordsman", command.x, command.y);
 
 		DEBUG_LOG("Created swordsman entity with ID: " << swordsmanEntity->GetId());
 	}
@@ -187,6 +193,9 @@ namespace sw
 		// Завершаем инициализацию (автоматически занимает клетку на карте)
 		world.EndEntityInitialization();
 
+		// Логируем создание юнита
+		EventSystemManager::Get().GetEventSystem().LogUnitSpawned(command.unitId, "Hunter", command.x, command.y);
+
 		DEBUG_LOG("Created hunter entity with ID: " << hunterEntity->GetId());
 	}
 
@@ -207,6 +216,14 @@ namespace sw
 			return;
 		}
 
+		// Получаем текущую позицию для логирования
+		auto* position = targetEntity->GetComponent<sw::ecs::PositionComponent>();
+		if (!position)
+		{
+			DEBUG_LOG("Warning: Entity " << targetEntity->GetId() << " has no position component");
+			return;
+		}
+
 		// Добавляем или обновляем MovementTargetComponent
 		auto* movementTarget = targetEntity->GetComponent<sw::ecs::MovementTargetComponent>();
 		if (!movementTarget)
@@ -220,6 +237,9 @@ namespace sw
 			movementTarget->targetX = command.targetX;
 			movementTarget->targetY = command.targetY;
 		}
+
+		// Логируем начало движения
+		EventSystemManager::Get().GetEventSystem().LogMarchStarted(command.unitId, position->x, position->y, command.targetX, command.targetY);
 
 		DEBUG_LOG("Set movement target for entity " << targetEntity->GetId());
 	}

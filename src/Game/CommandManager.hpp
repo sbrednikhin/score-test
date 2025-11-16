@@ -9,6 +9,8 @@
 #include <IO/Commands/March.hpp>
 #include <IO/System/PrintDebug.hpp>
 #include "ManagerBase.hpp"
+#include "IExternalEventSystem.hpp"
+#include "EventSystemManager.hpp"
 
 namespace sw
 {

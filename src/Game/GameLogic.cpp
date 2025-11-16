@@ -1,12 +1,13 @@
 #include "GameLogic.hpp"
-#include "EventLogger.hpp"
 #include "EventLogSystem.hpp"
+#include "IExternalEventSystem.hpp"
 #include "ECS/WorldHelper.hpp"
 
 namespace sw
 {
 	using namespace ecs;
-	GameLogic::GameLogic(std::shared_ptr<ICommandSource> commandSource)
+
+GameLogic::GameLogic(std::shared_ptr<ICommandSource> commandSource)
 		: _commandSource(commandSource)
 		, _isInitialized(false)
 		, _isRunning(false)
@@ -26,6 +27,10 @@ namespace sw
 		_worldManager = std::make_unique<WorldManager>();
 		_commandManager = std::make_unique<CommandManager>();
 
+		// Инициализируем систему событий (нужна для логгирования команд)
+		InitializeExternalEventSystem();
+
+
 		// Инициализируем менеджеры
 		_worldManager->Initialize();  // Сначала инициализируем мир (без сущностей)
 		_commandManager->Initialize();
@@ -36,13 +41,15 @@ namespace sw
 			source->ProcessCommands();
 		}
 
-		// Создаем систему событий (теперь безопасно передавать ссылку на себя)
-		auto eventSystem = std::make_unique<EventLogSystem>(*this);
-		SetExternalEventSystem(std::move(eventSystem));
+	_isInitialized = true;
+	_isRunning = true;
+	_updateCounter = 0;
+	}
 
-		_isInitialized = true;
-		_isRunning = true;
-		_updateCounter = 0;
+	void GameLogic::InitializeExternalEventSystem()
+	{
+		_externalEventSystem = std::make_unique<EventLogSystem>(*this);
+		_eventSystemManager = std::make_unique<EventSystemManager>(_externalEventSystem.get());
 	}
 
 	void GameLogic::Deinitialize()
@@ -93,19 +100,5 @@ namespace sw
 
 		// Нет активных сущностей и нет команд - завершаемся
 		return true;
-	}
-
-
-	void GameLogic::SetExternalEventSystem(std::unique_ptr<IExternalEventSystem> eventSystem)
-	{
-		_externalEventSystem = std::move(eventSystem);
-		if (_externalEventSystem)
-		{
-			EventLogger::SetEventSystem(_externalEventSystem.get());
-		}
-		else
-		{
-			EventLogger::SetEventSystem(nullptr);
-		}
 	}
 }

@@ -5,7 +5,7 @@
 
 // Флаг отладочной сборки
 #ifndef DEBUG_BUILD
-#define DEBUG_BUILD 1
+#define DEBUG_BUILD 0
 #endif
 
 // Макросы для условного логирования и ассертов

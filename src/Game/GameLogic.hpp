@@ -6,6 +6,7 @@
 #include "ManagerBase.hpp"
 #include "ICommandSource.hpp"
 #include "IExternalEventSystem.hpp"
+#include "EventSystemManager.hpp"
 
 namespace sw
 {
@@ -34,14 +35,16 @@ namespace sw
 		static WorldManager& GetWorldManager() { return WorldManager::Get(); }
 
 		// Работа с системой внешних событий
-		void SetExternalEventSystem(std::unique_ptr<IExternalEventSystem> eventSystem);
-		IExternalEventSystem* GetExternalEventSystem() const { return _externalEventSystem.get(); }
+		IExternalEventSystem& GetExternalEventSystem() const { return *_externalEventSystem; }
 
 	private:
+		// Инициализация системы внешних событий (приватный метод)
+		void InitializeExternalEventSystem();
 		std::unique_ptr<WorldManager> _worldManager;
 		std::unique_ptr<CommandManager> _commandManager;
 		std::weak_ptr<ICommandSource> _commandSource;
 		std::unique_ptr<IExternalEventSystem> _externalEventSystem;
+		std::unique_ptr<EventSystemManager> _eventSystemManager;
 
 		bool _isInitialized;
 		bool _isRunning;

@@ -3,6 +3,8 @@
 #include "Components.hpp"
 #include "MapService.hpp"
 #include "Debug.hpp"
+#include "../IExternalEventSystem.hpp"
+#include "../EventSystemManager.hpp"
 #include <algorithm>
 #include <random>
 
@@ -108,6 +110,13 @@ namespace sw::ecs
 			{
 				if (target->GetComponent<AliveComponent>())
 				{
+					// Логируем смерть
+					auto* targetId = target->GetComponent<ExternalIdComponent>();
+					if (targetId)
+					{
+						EventSystemManager::Get().GetEventSystem().LogUnitDied(targetId->externalId);
+					}
+
 					target->RemoveComponent<AliveComponent>();
 					DEBUG_LOG("Entity " << target->GetId() << " died from " << attackerName << " attack");
 				}
